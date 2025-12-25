@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>给你的一封小表白</title>
+  <style>
+    :root{
+      --bg1:#ffdde1; --bg2:#ee9ca7; --card:#ffffffcc; --text:#2b2b2b;
+      --btn:#ff5a7a; --btn2:#2b2b2b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(1200px 800px at 20% 20%, var(--bg1), transparent 60%),
+                  radial-gradient(1200px 800px at 80% 80%, var(--bg2), transparent 60%),
+                  linear-gradient(135deg, #fff, #ffd1dc);
+      font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color:var(--text);
+      overflow:hidden;
+    }
+    .card{
+      width:min(560px, 92vw);
+      background:var(--card);
+      border:1px solid #ffffff80;
+      border-radius:24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.12);
+      padding:28px 22px;
+      backdrop-filter: blur(10px);
+      position:relative;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px;
+      background:#fff; border:1px solid #00000010;
+      font-size:14px;
+    }
+    h1{margin:14px 0 10px; font-size:28px; letter-spacing:.5px}
+    p{margin:10px 0; line-height:1.75; font-size:16px}
+    .names{font-weight:700}
+    .buttons{display:flex; gap:12px; margin-top:18px; flex-wrap:wrap}
+    button{
+      appearance:none; border:0; border-radius:14px;
+      padding:12px 16px; font-size:16px; cursor:pointer;
+      transition: transform .06s ease, filter .2s ease;
+      user-select:none;
+    }
+    button:active{transform:translateY(1px) scale(.99)}
+    .yes{background:var(--btn); color:white; flex:1}
+    .no{background:#fff; color:var(--btn2); border:1px solid #00000018; flex:1}
+    .foot{margin-top:14px; font-size:13px; opacity:.7}
+    .result{
+      margin-top:14px; padding:12px 14px; border-radius:14px;
+      background:#fff; border:1px dashed #00000020; display:none;
+    }
+    .heart{
+      position:absolute; left:var(--x); top:110%;
+      font-size:18px; opacity:.75;
+      animation: floatUp var(--t) linear forwards;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
+      pointer-events:none;
+    }
+    @keyframes floatUp{
+      to{ transform: translateY(-130vh) translateX(var(--dx)); opacity:0; }
+    }
+    canvas{position:fixed; inset:0; pointer-events:none}
+  </style>
+</head>
+<body>
+  <canvas id="fx"></canvas>
+
+  <div class="card">
+    <div class="badge">💌 小小心意 · 只给你看</div>
+
+    <h1>嗨，<span class="names" id="toName">张文静</span>。</h1>
+
+    <p>我想认真跟你说一句：</p>
+    <p style="font-size:18px;font-weight:700;">我喜欢你，不是今天才开始，是越来越确定。</p>
+    <p>如果你愿意，我们可以把“有空一起”变成“经常一起”。</p>
+
+    <p>—— 来自 <span class="names" id="fromName">阿伟</span></p>
+
+    <div class="buttons">
+      <button class="yes" id="yesBtn">我愿意 💗</button>
+      <button class="no" id="noBtn">我再想想 🙈</button>
+    </div>
+
+    <div class="result" id="result"></div>
+    <div class="foot">（想改名字：往下滑到代码里把 TO_NAME / FROM_NAME 改掉就行）</div>
+  </div>
+
+  <script>
+    // ✅ 改这里：名字（已经替你填好）
+    const TO_NAME = "张文静";
+    const FROM_NAME = "阿伟";
+
+    document.getElementById("toName").textContent = TO_NAME;
+    document.getElementById("fromName").textContent = FROM_NAME;
+
+    const result = document.getElementById("result");
+
+    function show(msg){
+      result.style.display = "block";
+      result.textContent = msg;
+    }
+
+    function spawnHearts(n=18){
+      for(let i=0;i<n;i++){
+        const s=document.createElement("div");
+        s.className="heart";
+        s.textContent = ["💗","💞","💖","💕","💘"][Math.floor(Math.random()*5)];
+        s.style.setProperty("--x", (Math.random()*100)+"vw");
+        s.style.setProperty("--t", (3+Math.random()*2.2)+"s");
+        s.style.setProperty("--dx", ((Math.random()*2-1)*80)+"px");
+        s.style.fontSize = (14+Math.random()*18)+"px";
+        document.body.appendChild(s);
+        setTimeout(()=>s.remove(), 6000);
+      }
+    }
+
+    // confetti
+    const canvas = document.getElementById("fx");
+    const ctx = canvas.getContext("2d");
+    let W,H,confetti=[],raf=null;
+    function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; }
+    addEventListener("resize", resize); resize();
+
+    function boom(){
+      confetti = Array.from({length:160}, ()=>({
+        x: W/2, y: H*0.35,
+        vx:(Math.random()*2-1)*7,
+        vy:(Math.random()*2-1)*9 - 3,
+        g: 0.18 + Math.random()*0.08,
+        s: 2 + Math.random()*3,
+        a: 1
+      }));
+      if(!raf) tick();
+    }
+    function tick(){
+      ctx.clearRect(0,0,W,H);
+      confetti.forEach(p=>{
+        p.vy += p.g;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.a *= 0.992;
+        ctx.globalAlpha = Math.max(0,p.a);
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.s,0,Math.PI*2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      confetti = confetti.filter(p=>p.a>0.05 && p.y < H+50);
+      if(confetti.length){
+        raf = requestAnimationFrame(tick);
+      }else{
+        cancelAnimationFrame(raf); raf=null;
+        ctx.clearRect(0,0,W,H);
+      }
+    }
+
+    document.getElementById("yesBtn").addEventListener("click", ()=>{
+      spawnHearts(28);
+      boom();
+      show("那我就认真开始喜欢你了。今晚也想跟你说：你很好，我很幸运。💗");
+    });
+
+    document.getElementById("noBtn").addEventListener("click", ()=>{
+      spawnHearts(10);
+      show("没关系，我不催你。等你想好了，跟我说一声就行。🙂");
+    });
+
+    setTimeout(()=>spawnHearts(12), 400);
+  </script>
+</body>
+</html>
