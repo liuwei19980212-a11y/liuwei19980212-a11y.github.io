@@ -14,8 +14,9 @@
     display:flex;
     justify-content:center;
 
+    /* ✅ 再往下移一点：让脸更露出来 */
     align-items:flex-start;
-    padding:clamp(240px, 34vh, 380px) 0 70px;
+    padding:clamp(290px, 40vh, 460px) 0 70px;
 
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
     color:var(--text);
@@ -74,14 +75,14 @@
   #birthdayOnly{ display:none; margin-top:16px; }
   #easterEgg{ display:none; margin-top:12px; font-size:14px; color:rgba(51,51,51,.6); }
 
-  /* ✅ 绽放特效：从按钮位置“爆开” */
+  /* ✅ 绽放特效：爆开 + 持续更久（单个粒子动画更长） */
   .fx{
     position:fixed;
     left:0; top:0;
     pointer-events:none;
     z-index:10;
     will-change:transform,opacity;
-    animation: burst 1.15s cubic-bezier(.18,.75,.22,1) forwards;
+    animation: burst 2s cubic-bezier(.18,.75,.22,1) forwards;
     filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
   }
   @keyframes burst{
@@ -89,7 +90,7 @@
       opacity:0;
       transform:translate3d(var(--x0), var(--y0), 0) scale(.6);
     }
-    12%{ opacity:1; }
+    10%{ opacity:1; }
     100%{
       opacity:0;
       transform:translate3d(
@@ -186,7 +187,6 @@
 
 <script>
   const btn = document.getElementById("fireBtn");
-  const card = document.getElementById("card");
   const sheetMask = document.getElementById("sheetMask");
   const goQQ = document.getElementById("goQQ");
   const noThanks = document.getElementById("noThanks");
@@ -221,38 +221,51 @@
       let dx = Math.cos(angle) * r;
       let dy = Math.sin(angle) * r;
 
-      // 轻微“往上”一点，但不冲到顶（限制上飘幅度）
-      dy -= 35;
-      if (dy < -190) dy = -190;
+      // ✅ 往上飘一点，但不要飘到顶：控制上飘幅度
+      dy -= 30;
+      if (dy < -210) dy = -210;
 
-      // 避免飞到特别靠顶
-      if (originY + dy < 120) dy = 120 - originY;
+      // ✅ 避免飞到特别靠顶（给顶部留空间）
+      if (originY + dy < 140) dy = 140 - originY;
 
-      el.style.setProperty("--x0", originX + "px");
-      el.style.setProperty("--y0", originY + "px");
+      // ✅ 让起点有一点点抖动，更像“绽放”
+      const jitterX = (Math.random()*18 - 9);
+      const jitterY = (Math.random()*12 - 6);
+
+      el.style.setProperty("--x0", (originX + jitterX) + "px");
+      el.style.setProperty("--y0", (originY + jitterY) + "px");
       el.style.setProperty("--dx", dx + "px");
       el.style.setProperty("--dy", dy + "px");
 
       document.body.appendChild(el);
-      setTimeout(()=> el.remove(), 1300);
+      setTimeout(()=> el.remove(), 2100);
     }
   }
 
-  function spawnFX(){
-    // 从按钮中心“绽放”
+  function spawnOneWave(){
     const b = btn.getBoundingClientRect();
     const originX = b.left + b.width/2;
     const originY = b.top + b.height/2;
 
-    // 三层：烟花 + 心心 + 闪光
-    burst(originX, originY, 26, ["🩷","💗","💖"], 70, 170, 18, 28);
-    burst(originX, originY, 22, ["🎆","🎇"], 60, 150, 18, 26);
-    burst(originX, originY, 34, ["✨","✨","✨","✦","✧"], 80, 210, 14, 20);
+    // ✅ 每一波都是“绽放式”爆开（不是一排）
+    burst(originX, originY, 18, ["🩷","💗","💖","💞"], 70, 180, 18, 28);
+    burst(originX, originY, 14, ["🎆","🎇"],          60, 160, 18, 26);
+    burst(originX, originY, 22, ["✨","✦","✧","✨"],  80, 230, 14, 20);
+  }
+
+  // ✅ 持续约 2 秒不断绽放（每 180ms 来一波）
+  function spawnFX2s(){
+    const start = Date.now();
+    spawnOneWave(); // 立刻先来一波
+    const t = setInterval(()=>{
+      spawnOneWave();
+      if(Date.now() - start >= 2000) clearInterval(t);
+    }, 180);
   }
 
   btn.addEventListener("click", ()=>{
     clicks++;
-    spawnFX();
+    spawnFX2s();
 
     if (isBirthday || clicks >= 3){
       document.getElementById("easterEgg").style.display = "block";
