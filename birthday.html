@@ -1,150 +1,97 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>生日快乐 🎂</title>
 
 <style>
-  :root{ --pink:#ff6b9d; --text:#333; }
-
+  :root{
+    --pink:#ff6b9d;
+  }
   body{
     margin:0;
     min-height:100vh;
     display:flex;
+    align-items:flex-start;   /* 让卡片能往下移 */
     justify-content:center;
-
-    align-items:flex-start;
-    padding:clamp(240px, 34vh, 380px) 0 70px;
-
+    padding-top:18vh;         /* 往下移：想再往下就把 18vh 改大，比如 22vh */
+    background:
+      linear-gradient(135deg,rgba(255,230,238,.65),rgba(247,242,255,.65)),
+      url("bg.jpg.JPG") center/cover no-repeat fixed;
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
-    color:var(--text);
+    color:#333;
     overflow:hidden;
-    background:#f7f2ff;
-  }
-
-  body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:url("bg.jpg.JPG") center/cover no-repeat;
-    transform:scale(1.03);
-    filter: brightness(.92) saturate(1.05);
-    z-index:-2;
-  }
-  body::after{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:linear-gradient(135deg, rgba(255,230,238,.55), rgba(247,242,255,.55));
-    z-index:-1;
   }
 
   .card{
     width:min(560px,90vw);
-    border-radius:26px;
-    padding:28px 24px 26px;
+    border-radius:28px;
+    padding:30px 24px 26px;
     text-align:center;
-    background:rgba(255,255,255,.55);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    box-shadow:0 20px 40px rgba(0,0,0,.10);
+    background:rgba(255,255,255,.22);  /* 更透明 */
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     border:1px solid rgba(255,255,255,.35);
-    box-shadow:0 18px 50px rgba(0,0,0,.12);
   }
 
-  h1{ margin:6px 0 10px; font-size:26px; letter-spacing:.5px; }
-  p{ line-height:1.85; margin:12px 0; }
+  h1{ margin:0 0 12px; font-size:28px; letter-spacing:.5px; }
+  p{ line-height:1.9; margin:12px 0; font-size:16px; }
   .from{ margin-top:14px; font-weight:600; }
 
-  .btn{
-    margin-top:16px;
-    padding:12px 26px;
+  button{
+    margin-top:18px;
+    padding:12px 28px;
     border:none;
     border-radius:999px;
-    background:linear-gradient(135deg,#ff6b9d,#ff8bb4);
+    background:linear-gradient(135deg,#ff7aa8,#ff5b93);
     color:#fff;
     font-size:16px;
-    font-weight:700;
-    box-shadow:0 10px 24px rgba(255,107,157,.35);
-    cursor:pointer;
+    box-shadow:0 10px 18px rgba(255,91,147,.28);
   }
-  .btn:active{ transform:translateY(1px); }
+  button:active{ transform:translateY(1px); }
 
-  .small{ font-size:14px; color:rgba(51,51,51,.75); margin-top:10px; }
-  #birthdayOnly{ display:none; margin-top:16px; }
-  #easterEgg{ display:none; margin-top:12px; font-size:14px; color:rgba(51,51,51,.6); }
+  .small{ font-size:14px; color:rgba(30,30,30,.72); margin-top:12px; }
 
-  /* ✅ 绽放特效：从按钮位置“爆开” */
-  .fx{
+  /* 粒子（绽放） */
+  .burst{
     position:fixed;
     left:0; top:0;
+    width:10px; height:10px;
+    transform:translate(-50%,-50%);
     pointer-events:none;
-    z-index:10;
-    will-change:transform,opacity;
-    animation: burst 1.15s cubic-bezier(.18,.75,.22,1) forwards;
-    filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
+    z-index:9999;
   }
-  @keyframes burst{
-    0%{
-      opacity:0;
-      transform:translate3d(var(--x0), var(--y0), 0) scale(.6);
-    }
-    12%{ opacity:1; }
-    100%{
-      opacity:0;
-      transform:translate3d(
-        calc(var(--x0) + var(--dx)),
-        calc(var(--y0) + var(--dy)),
-        0
-      ) scale(1.15);
-    }
+  .spark{
+    position:absolute;
+    left:0; top:0;
+    transform:translate(-50%,-50%);
+    font-size:22px;
+    opacity:0;
+    animation:pop 2s ease-out forwards; /* 绽放更久：2 秒 */
+    will-change: transform, opacity;
+    filter: drop-shadow(0 8px 10px rgba(0,0,0,.12));
   }
 
-  .sheetMask{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.18);
-    display:none;
-    align-items:flex-end;
-    justify-content:center;
-    z-index:20;
-    padding:18px 14px;
+  @keyframes pop{
+    0%   { opacity:0; transform:translate(-50%,-50%) scale(.6); }
+    10%  { opacity:1; }
+    100% { opacity:0; transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.15); }
   }
-  .sheet{
-    width:min(560px,92vw);
-    border-radius:18px;
-    background:rgba(255,255,255,.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow:0 20px 60px rgba(0,0,0,.22);
-    overflow:hidden;
-  }
-  .sheetHead{ padding:14px 16px 10px; font-weight:700; color:#222; text-align:left; }
-  .sheetBtn{
-    width:100%;
-    padding:14px 16px;
-    border:none;
-    background:#fff;
-    font-size:16px;
-    font-weight:700;
-    cursor:pointer;
-  }
-  .sheetBtnPrimary{ border-top:1px solid rgba(0,0,0,.06); }
-  .sheetBtnPrimary span{ color:#111; }
-  .sheetBtnPrimary small{
-    display:block; margin-top:6px;
-    font-weight:500; color:rgba(0,0,0,.48); font-size:13px;
-  }
-  .sheetBtnCancel{
-    border-top:10px solid rgba(0,0,0,.06);
-    color:#666; font-weight:700;
+
+  /* 轻微浮动，让画面更柔和 */
+  .card{ animation:floatCard 6s ease-in-out infinite; }
+  @keyframes floatCard{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-6px); }
   }
 </style>
 </head>
 
 <body>
-  <div class="card" id="card">
-    <div style="font-size:42px; margin-bottom:2px;">🎂</div>
+  <div class="card">
+    <div style="font-size:44px; margin-bottom:8px;">🎂</div>
 
     <h1><span style="color:var(--pink)">张文静</span>，生日快乐</h1>
 
@@ -157,119 +104,88 @@
 
     <p class="from">—— 来自 <span style="color:var(--pink)">刘伟</span></p>
 
-    <button class="btn" id="fireBtn">点我一下 💗</button>
+    <button id="fireBtn">点我一下 💗</button>
 
     <p id="countdown" class="small"></p>
-
-    <div id="birthdayOnly">
-      <p>
-        🎂 今天是你的生日<br>
-        有些话平时不说，<br>
-        但今天可以。
-      </p>
-      <p><b>你真的，很值得被认真对待。</b></p>
-    </div>
-
-    <p id="easterEgg">（小声）如果你愿意，今年我想把“惦记”做得更具体一点。</p>
-  </div>
-
-  <div class="sheetMask" id="sheetMask">
-    <div class="sheet">
-      <div class="sheetHead">🎧 我也去听了你推荐的歌</div>
-      <button class="sheetBtn sheetBtnPrimary" id="goQQ">
-        <span>去 QQ 音乐听《NOT CUTE ANYMORE》</span>
-        <small>如果没自动跳转，可点右上角“…”用浏览器打开</small>
-      </button>
-      <button class="sheetBtn sheetBtnCancel" id="noThanks">先不听</button>
-    </div>
   </div>
 
 <script>
   const btn = document.getElementById("fireBtn");
-  const card = document.getElementById("card");
-  const sheetMask = document.getElementById("sheetMask");
-  const goQQ = document.getElementById("goQQ");
-  const noThanks = document.getElementById("noThanks");
 
-  const qqUrl = "https://c6.y.qq.com/base/fcgi-bin/u?__=cZQLF5iyxaK7";
-
-  const now = new Date();
-  const today = new Date(now); today.setHours(0,0,0,0);
-
-  let birthday = new Date(today.getFullYear(), 0, 14);
+  // 生日：1月14号
+  const today = new Date();
+  const birthdayThisYear = new Date(today.getFullYear(), 0, 14);
   const isBirthday = (today.getMonth()===0 && today.getDate()===14);
-  if (today > birthday) birthday = new Date(today.getFullYear()+1, 0, 14);
 
-  const diffDays = Math.ceil((birthday - today) / 86400000);
+  let nextBirthday = new Date(birthdayThisYear);
+  if (today > nextBirthday) nextBirthday.setFullYear(today.getFullYear()+1);
+
+  const diff = Math.ceil((nextBirthday - today) / (1000*60*60*24));
   document.getElementById("countdown").innerText =
-    isBirthday ? "🎈 今天是她生日" : `🎈 距离生日还有 ${diffDays} 天`;
+    isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
 
-  if (isBirthday) document.getElementById("birthdayOnly").style.display = "block";
+  // 生成一次“绽放”
+  function burst(x, y, count = 28){
+    const wrap = document.createElement("div");
+    wrap.className = "burst";
+    wrap.style.left = x + "px";
+    wrap.style.top  = y + "px";
 
-  let clicks = 0;
+    const icons = ["🎆","🩷","💖","✨"]; // 你也可以只保留 🎆 + 🩷
+    for(let i=0;i<count;i++){
+      const s = document.createElement("div");
+      s.className = "spark";
+      s.textContent = icons[Math.floor(Math.random()*icons.length)];
 
-  function burst(originX, originY, n, icons, rMin, rMax, sizeMin, sizeMax){
-    for(let i=0;i<n;i++){
-      const el = document.createElement("div");
-      el.className = "fx";
-      el.textContent = icons[Math.floor(Math.random()*icons.length)];
-      el.style.fontSize = (sizeMin + Math.random()*(sizeMax-sizeMin)) + "px";
+      // 均匀分布在圆形/椭圆上（绽放形）
+      const angle = (Math.PI * 2) * (i / count) + (Math.random()*0.25);
+      const radius = 90 + Math.random()*70;      // 绽放大小
+      const dx = Math.cos(angle) * radius;
+      const dy = Math.sin(angle) * (radius*0.72); // 稍微扁一点更像烟花
 
-      const angle = Math.random() * Math.PI * 2;
-      const r = rMin + Math.random()*(rMax - rMin);
+      s.style.setProperty("--dx", dx.toFixed(1) + "px");
+      s.style.setProperty("--dy", dy.toFixed(1) + "px");
 
-      let dx = Math.cos(angle) * r;
-      let dy = Math.sin(angle) * r;
+      // 随机大小
+      const size = 18 + Math.random()*12;
+      s.style.fontSize = size.toFixed(0) + "px";
 
-      // 轻微“往上”一点，但不冲到顶（限制上飘幅度）
-      dy -= 35;
-      if (dy < -190) dy = -190;
-
-      // 避免飞到特别靠顶
-      if (originY + dy < 120) dy = 120 - originY;
-
-      el.style.setProperty("--x0", originX + "px");
-      el.style.setProperty("--y0", originY + "px");
-      el.style.setProperty("--dx", dx + "px");
-      el.style.setProperty("--dy", dy + "px");
-
-      document.body.appendChild(el);
-      setTimeout(()=> el.remove(), 1300);
-    }
-  }
-
-  function spawnFX(){
-    // 从按钮中心“绽放”
-    const b = btn.getBoundingClientRect();
-    const originX = b.left + b.width/2;
-    const originY = b.top + b.height/2;
-
-    // 三层：烟花 + 心心 + 闪光
-    burst(originX, originY, 26, ["🩷","💗","💖"], 70, 170, 18, 28);
-    burst(originX, originY, 22, ["🎆","🎇"], 60, 150, 18, 26);
-    burst(originX, originY, 34, ["✨","✨","✨","✦","✧"], 80, 210, 14, 20);
-  }
-
-  btn.addEventListener("click", ()=>{
-    clicks++;
-    spawnFX();
-
-    if (isBirthday || clicks >= 3){
-      document.getElementById("easterEgg").style.display = "block";
+      // 让它立即出现再扩散
+      s.style.opacity = 0;
+      wrap.appendChild(s);
+      requestAnimationFrame(()=>{ s.style.opacity = 1; });
     }
 
-    sheetMask.style.display = "flex";
-  });
+    document.body.appendChild(wrap);
+    setTimeout(()=>wrap.remove(), 2100); // 跟 2s 动画匹配
+  }
 
-  goQQ.addEventListener("click", ()=>{
-    window.open(qqUrl, "_blank");
-    sheetMask.style.display = "none";
-  });
+  // 点击后：持续绽放约 2 秒（不是一排）
+  btn.addEventListener("click", (e) => {
+    // 点击位置（没有就用按钮中心）
+    const rect = btn.getBoundingClientRect();
+    const x0 = (e && e.clientX) ? e.clientX : (rect.left + rect.width/2);
+    const y0 = (e && e.clientY) ? e.clientY : (rect.top  + rect.height/2);
 
-  noThanks.addEventListener("click", ()=>{ sheetMask.style.display = "none"; });
+    const start = Date.now();
+    const duration = 2000;     // 持续 2 秒
+    const every = 220;         // 多频率一点：越小越密
+    const timer = setInterval(()=>{
+      const t = Date.now() - start;
+      if (t > duration){
+        clearInterval(timer);
+        return;
+      }
+      // 每次绽放在按钮附近小范围随机，避免都叠在一处
+      const x = x0 + (Math.random()*140 - 70);
+      const y = y0 + (Math.random()*120 - 60);
 
-  sheetMask.addEventListener("click", (e)=>{
-    if(e.target === sheetMask) sheetMask.style.display = "none";
+      // 数量更多
+      burst(x, y, 34 + Math.floor(Math.random()*10));
+    }, every);
+
+    // 先来一发更大的
+    burst(x0, y0, 44);
   });
 </script>
 </body>
