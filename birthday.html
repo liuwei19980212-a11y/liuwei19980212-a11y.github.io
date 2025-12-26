@@ -40,7 +40,8 @@
   }
   @keyframes float{
     from{opacity:1;transform:translate(-50%, 0) scale(var(--s)) rotate(0deg)}
-    to{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-180px - var(--dy))) scale(calc(var(--s) + .25)) rotate(var(--r))}
+    /* 往上飘更多，但不会到顶（大约停在屏幕上方 70% 附近） */
+    to{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-300px - var(--dy))) scale(calc(var(--s) + .25)) rotate(var(--r))}
   }
 
   /* 弹层 */
@@ -76,8 +77,8 @@
     <p>
       愿你新的一岁，<br>
       眼里有光，心里有糖，<br>
-      每一次被认真对待，<br>
-      都刚好有我在场。
+      有人惦记，<br>
+      也被世界温柔以待。
     </p>
 
     <p class="from">—— 来自 <span style="color:var(--pink)">刘伟</span></p>
@@ -121,30 +122,29 @@
   const btn = document.getElementById("fireBtn");
   const mask = document.getElementById("sheetMask");
 
-  // 🔥 这里调“烟花/🩷数量”：把 burst( ) 里的 n 调大/小即可
+  // 让特效“更往上飘但不顶到天花板”：
+  // 1) 起点从更低一些开始（底部 0~8vh）
+  // 2) dy 控制额外上飘幅度（0~220px）
   function burst(n=40){
-    const emojis = ["🩷","🩷","💖","🎆","🎆"]; // 比例：🩷更多 + 烟花也多
+    const emojis = ["🩷","🩷","💖","🎆","🎆"];
     for(let i=0;i<n;i++){
       const e = document.createElement("div");
       e.className = "fx";
       e.textContent = emojis[Math.floor(Math.random()*emojis.length)];
 
-      // 随机位置（更铺满屏）
       e.style.left = (Math.random()*100) + "vw";
-      e.style.bottom = (Math.random()*12) + "vh";
+      e.style.bottom = (Math.random()*8) + "vh"; // 起点更靠下
 
-      // 随机大小/飘动/旋转
-      const s = (Math.random()*0.55 + 0.85).toFixed(2);         // 0.85~1.40
-      const dx = (Math.random()*260 - 130).toFixed(0) + "px";   // -130~130
-      const dy = (Math.random()*140).toFixed(0) + "px";         // 0~140
-      const r  = (Math.random()*220 - 110).toFixed(0) + "deg";  // -110~110
+      const s = (Math.random()*0.55 + 0.85).toFixed(2);
+      const dx = (Math.random()*260 - 130).toFixed(0) + "px";
+      const dy = (Math.random()*220).toFixed(0) + "px"; // 上飘更高，但仍会在中上部消失
+      const r  = (Math.random()*220 - 110).toFixed(0) + "deg";
 
       e.style.setProperty("--s", s);
       e.style.setProperty("--dx", dx);
       e.style.setProperty("--dy", dy);
       e.style.setProperty("--r",  r);
 
-      // 随机延迟，让它像“连爆”
       e.style.animationDelay = (Math.random()*0.35).toFixed(2) + "s";
 
       document.body.appendChild(e);
@@ -153,7 +153,6 @@
   }
 
   btn.addEventListener("click", ()=>{
-    // 三段连爆：数量更“满”
     burst(42);
     setTimeout(()=>burst(34), 160);
     setTimeout(()=>burst(28), 320);
@@ -174,7 +173,7 @@
     tmr=setTimeout(()=>taps=0, 800);
     if(taps>=7){
       taps=0;
-      burst(55); // 彩蛋再来一波更大的
+      burst(55);
       alert("🫶 彩蛋解锁：\n“我想把对你的喜欢，藏在每一个不经意的祝福里。”");
     }
   });
