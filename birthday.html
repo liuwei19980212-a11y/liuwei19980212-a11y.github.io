@@ -37,12 +37,16 @@ button{
   font-size:16px;
 }
 .small{font-size:14px;color:#666;margin-top:12px}
+.subtle{font-size:13px;color:#999;margin-top:8px}
 .linkBtn{
   display:inline-block;
-  margin-top:8px;
-  font-size:14px;
+  margin-top:10px;
+  padding:10px 18px;
+  border-radius:999px;
+  border:1px solid rgba(255,107,157,.35);
   color:#ff6b9d;
   text-decoration:none;
+  font-size:14px;
 }
 #birthdayOnly{display:none;margin-top:14px}
 #easterEgg{display:none;margin-top:14px;font-size:14px;color:#888}
@@ -73,7 +77,7 @@ button{
 
   <p>—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
 
-  <!-- 🎵 网页生日音乐 -->
+  <!-- 🎵 网页生日音乐 + 爱心 -->
   <button id="fireBtn">点我一下 🤍</button>
   <p id="soundTip" class="small">🎵 如果没听到音乐，点一下上面的按钮即可</p>
 
@@ -92,36 +96,34 @@ button{
   <!-- 🎁 彩蛋：仅生日当天 + 点按钮才出现 -->
   <p id="easterEgg">这句话，本来没打算给任何人看。</p>
 
-  <!-- 🎧 她推荐的歌（QQ 音乐中转是正常的） -->
+  <!-- 🎧 她推荐的歌：先唤起 App，不行再退回网页 -->
   <div style="margin-top:22px">
     <p class="small">🎧 有一首你最近分享的歌，我也听了。</p>
 
-    <a class="linkBtn"
-       href="https://i.y.qq.com/v8/playsong.html?songmid=003ZyF2B2j9tZz"
-       target="_blank" rel="noopener">
-       去 QQ 音乐听这首歌 →
+    <a class="linkBtn" href="javascript:void(0)" id="openSongBtn">
+      去听那首歌 →
     </a>
 
-    <p class="small" style="margin-top:8px;color:#999">
-      如果跳到黑色页面，点底部绿色「去QQ音乐听歌」就能正常打开。
+    <p class="subtle">
+      如果没自动打开 QQ 音乐，会跳到网页中转页；再点一次底部绿色按钮就行。
     </p>
   </div>
 </div>
 
-<!-- 🎵 网页背景音乐（免版权，保证可播放；iPhone 需点击触发） -->
+<!-- 🎵 网页背景音乐（免版权；iPhone 需点击触发） -->
 <audio id="music" preload="auto" playsinline>
   <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-const btn = document.getElementById("fireBtn");
-const music = document.getElementById("music");
+/** ====== 基本信息 ====== **/
+const SONGMID = "003ZyF2B2j9tZz";
+const WEB_FALLBACK = `https://i.y.qq.com/v8/playsong.html?songmid=${SONGMID}`;
 
-// ✅ 生日：1 月 14 日
+/** ====== 倒计时/生日判断（1月14） ====== **/
 const today = new Date();
 const isBirthday = today.getMonth() === 0 && today.getDate() === 14;
 
-// 倒计时
 const birthday = new Date(today.getFullYear(), 0, 14);
 if (today > birthday) birthday.setFullYear(today.getFullYear() + 1);
 const diff = Math.ceil((birthday - today) / (1000*60*60*24));
@@ -129,19 +131,18 @@ const diff = Math.ceil((birthday - today) / (1000*60*60*24));
 document.getElementById("countdown").innerText =
   isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
 
-if (isBirthday) {
-  document.getElementById("birthdayOnly").style.display = "block";
-}
+if (isBirthday) document.getElementById("birthdayOnly").style.display="block";
 
-// iPhone 安全播放（兜底重试一次）
+/** ====== iPhone 安全播放音乐 ====== **/
+const btn = document.getElementById("fireBtn");
+const music = document.getElementById("music");
+
 function playMusicSafe(){
   try{
     music.muted = false;
     music.currentTime = 0;
     const p = music.play();
-    if (p && p.catch) {
-      p.catch(()=>setTimeout(()=>music.play().catch(()=>{}), 120));
-    }
+    if (p && p.catch) p.catch(()=>setTimeout(()=>music.play().catch(()=>{}), 120));
   }catch(e){}
 }
 
@@ -149,7 +150,6 @@ btn.addEventListener("click", () => {
   playMusicSafe();
   document.getElementById("soundTip").style.display = "none";
 
-  // 💖 爱心动画
   for(let i=0;i<12;i++){
     const h=document.createElement("div");
     h.className="heart";
@@ -160,11 +160,26 @@ btn.addEventListener("click", () => {
     setTimeout(()=>h.remove(),2000);
   }
 
-  // 🎁 彩蛋：仅生日当天显示
-  if (isBirthday) {
-    document.getElementById("easterEgg").style.display = "block";
-  }
+  if (isBirthday) document.getElementById("easterEgg").style.display = "block";
 });
+
+/** ====== QQ音乐：优先唤起App（避免黑色中转页的最佳办法） ====== **/
+function openQQMusicSong(){
+  // qqmusic://qq.com/media/playSonglist?p={"song":[{"songmid":"xxxx"}]}
+  const payload = { song: [{ songmid: SONGMID }] };
+  const p = encodeURIComponent(JSON.stringify(payload));
+  const scheme = `qqmusic://qq.com/media/playSonglist?p=${p}`;
+
+  // 尝试唤起App
+  window.location.href = scheme;
+
+  // 兜底：如果没装App/没唤起成功，稍后跳网页（可能出现黑色中转页，但能点绿色按钮进App）
+  setTimeout(() => {
+    window.location.href = WEB_FALLBACK;
+  }, 900);
+}
+
+document.getElementById("openSongBtn").addEventListener("click", openQQMusicSong);
 </script>
 </body>
 </html>
