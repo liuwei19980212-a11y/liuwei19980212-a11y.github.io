@@ -15,6 +15,7 @@ body{
   background:linear-gradient(135deg,#ffe6ee,#f7f2ff);
   font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
   color:#333;
+  overflow:hidden;
 }
 .card{
   width:min(560px,90vw);
@@ -24,6 +25,8 @@ body{
   text-align:center;
   box-shadow:0 20px 40px rgba(0,0,0,.08);
 }
+h1{margin:0 0 12px;font-size:26px}
+p{line-height:1.8;margin:12px 0}
 button{
   margin-top:18px;
   padding:12px 26px;
@@ -33,6 +36,7 @@ button{
   color:#fff;
   font-size:16px;
 }
+.small{font-size:14px;color:#666;margin-top:12px}
 .linkBtn{
   display:inline-block;
   margin-top:8px;
@@ -40,11 +44,9 @@ button{
   color:#ff6b9d;
   text-decoration:none;
 }
-.small{
-  font-size:14px;
-  color:#666;
-  margin-top:12px;
-}
+#birthdayOnly{display:none;margin-top:14px}
+#easterEgg{display:none;margin-top:14px;font-size:14px;color:#888}
+
 .heart{
   position:fixed;
   font-size:22px;
@@ -58,10 +60,8 @@ button{
 </head>
 
 <body>
-
 <div class="card">
   <div style="font-size:42px">🎂</div>
-
   <h1><span style="color:#ff6b9d">张文静</span>，生日快乐</h1>
 
   <p>
@@ -73,29 +73,42 @@ button{
 
   <p>—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
 
-  <!-- 🎵 生日背景音乐 -->
+  <!-- 🎵 网页生日音乐 -->
   <button id="fireBtn">点我一下 🤍</button>
   <p id="soundTip" class="small">🎵 如果没听到音乐，点一下上面的按钮即可</p>
 
   <p id="countdown" class="small"></p>
 
   <!-- 🎂 生日当天专属 -->
-  <div id="birthdayOnly" style="display:none;margin-top:14px">
+  <div id="birthdayOnly">
+    <p>
+      🎂 今天是你的生日<br>
+      有些话平时不说，<br>
+      但今天可以。
+    </p>
     <p><b>你真的，很值得被认真对待。</b></p>
   </div>
 
-  <!-- 🎧 她推荐的歌（QQ 音乐稳妥唤起） -->
+  <!-- 🎁 彩蛋：仅生日当天 + 点按钮才出现 -->
+  <p id="easterEgg">这句话，本来没打算给任何人看。</p>
+
+  <!-- 🎧 她推荐的歌（QQ 音乐中转是正常的） -->
   <div style="margin-top:22px">
     <p class="small">🎧 有一首你最近分享的歌，我也听了。</p>
+
     <a class="linkBtn"
        href="https://i.y.qq.com/v8/playsong.html?songmid=003ZyF2B2j9tZz"
-       target="_blank">
-       去听那首歌 →
+       target="_blank" rel="noopener">
+       去 QQ 音乐听这首歌 →
     </a>
+
+    <p class="small" style="margin-top:8px;color:#999">
+      如果跳到黑色页面，点底部绿色「去QQ音乐听歌」就能正常打开。
+    </p>
   </div>
 </div>
 
-<!-- 🎵 网页生日音乐（免版权，可播放） -->
+<!-- 🎵 网页背景音乐（免版权，保证可播放；iPhone 需点击触发） -->
 <audio id="music" preload="auto" playsinline>
   <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
 </audio>
@@ -104,33 +117,40 @@ button{
 const btn = document.getElementById("fireBtn");
 const music = document.getElementById("music");
 
-// 日期判断
+// ✅ 生日：1 月 14 日
 const today = new Date();
-const isBirthday = today.getMonth()===0 && today.getDate()===14;
+const isBirthday = today.getMonth() === 0 && today.getDate() === 14;
 
 // 倒计时
-const birthday = new Date(today.getFullYear(),0,14);
-if(today > birthday) birthday.setFullYear(today.getFullYear()+1);
-const diff = Math.ceil((birthday - today)/(1000*60*60*24));
+const birthday = new Date(today.getFullYear(), 0, 14);
+if (today > birthday) birthday.setFullYear(today.getFullYear() + 1);
+const diff = Math.ceil((birthday - today) / (1000*60*60*24));
 
 document.getElementById("countdown").innerText =
   isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
 
-if(isBirthday){
-  document.getElementById("birthdayOnly").style.display="block";
+if (isBirthday) {
+  document.getElementById("birthdayOnly").style.display = "block";
 }
 
-// 播放音乐（iPhone 安全）
+// iPhone 安全播放（兜底重试一次）
 function playMusicSafe(){
-  music.currentTime = 0;
-  music.play().catch(()=>{});
+  try{
+    music.muted = false;
+    music.currentTime = 0;
+    const p = music.play();
+    if (p && p.catch) {
+      p.catch(()=>setTimeout(()=>music.play().catch(()=>{}), 120));
+    }
+  }catch(e){}
 }
 
-btn.addEventListener("click",()=>{
+btn.addEventListener("click", () => {
   playMusicSafe();
-  document.getElementById("soundTip").style.display="none";
+  document.getElementById("soundTip").style.display = "none";
 
-  for(let i=0;i<10;i++){
+  // 💖 爱心动画
+  for(let i=0;i<12;i++){
     const h=document.createElement("div");
     h.className="heart";
     h.innerText="💖";
@@ -139,8 +159,12 @@ btn.addEventListener("click",()=>{
     document.body.appendChild(h);
     setTimeout(()=>h.remove(),2000);
   }
+
+  // 🎁 彩蛋：仅生日当天显示
+  if (isBirthday) {
+    document.getElementById("easterEgg").style.display = "block";
+  }
 });
 </script>
-
 </body>
 </html>
