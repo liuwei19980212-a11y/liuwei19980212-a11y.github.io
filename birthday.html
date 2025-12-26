@@ -15,7 +15,6 @@ body{
   background:linear-gradient(135deg,#ffe6ee,#f7f2ff);
   font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
   color:#333;
-  overflow:hidden;
 }
 .card{
   width:min(560px,90vw);
@@ -34,7 +33,18 @@ button{
   color:#fff;
   font-size:16px;
 }
-.small{font-size:14px;color:#666;margin-top:12px}
+.linkBtn{
+  display:inline-block;
+  margin-top:10px;
+  font-size:14px;
+  color:#ff6b9d;
+  text-decoration:none;
+}
+.small{
+  font-size:14px;
+  color:#666;
+  margin-top:12px;
+}
 .heart{
   position:fixed;
   font-size:22px;
@@ -51,6 +61,7 @@ button{
 
 <div class="card">
   <div style="font-size:42px">🎂</div>
+
   <h1><span style="color:#ff6b9d">张文静</span>，生日快乐</h1>
 
   <p>
@@ -62,19 +73,29 @@ button{
 
   <p>—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
 
+  <!-- 🎵 生日音乐 -->
   <button id="fireBtn">点我一下 🤍</button>
+  <p id="soundTip" class="small">🎵 如果没听到音乐，点一下上面的按钮即可</p>
+
   <p id="countdown" class="small"></p>
 
-  <div id="birthdayOnly" style="display:none">
+  <!-- 🎂 生日当天专属 -->
+  <div id="birthdayOnly" style="display:none;margin-top:14px">
     <p><b>你真的，很值得被认真对待。</b></p>
   </div>
 
-  <p id="easterEgg" style="display:none;font-size:14px;color:#888">
-    这句话，本来没打算给任何人看。
-  </p>
+  <!-- 🎧 她的歌 -->
+  <div style="margin-top:22px">
+    <p class="small">🎧 有一首你最近分享的歌，我也听了。</p>
+    <a class="linkBtn"
+       href="https://y.qq.com/n/ryqq/songDetail/003ZyF2B2j9tZz"
+       target="_blank">
+       去听那首歌 →
+    </a>
+  </div>
 </div>
 
-<!-- 🎵 音乐（iPhone 兜底版） -->
+<!-- 🎵 网页生日音乐（免版权） -->
 <audio id="music" preload="auto" playsinline>
   <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
 </audio>
@@ -83,41 +104,33 @@ button{
 const btn = document.getElementById("fireBtn");
 const music = document.getElementById("music");
 
-// 生日判断
+// 日期判断
 const today = new Date();
-const isBirthday = today.getMonth() === 0 && today.getDate() === 14;
+const isBirthday = today.getMonth()===0 && today.getDate()===14;
 
 // 倒计时
 const birthday = new Date(today.getFullYear(),0,14);
 if(today > birthday) birthday.setFullYear(today.getFullYear()+1);
 const diff = Math.ceil((birthday - today)/(1000*60*60*24));
+
 document.getElementById("countdown").innerText =
   isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
 
 if(isBirthday){
-  document.getElementById("birthdayOnly").style.display = "block";
+  document.getElementById("birthdayOnly").style.display="block";
 }
 
-// 🎵 iPhone 音频强制解锁 + 播放
+// 播放音乐（iPhone 安全）
 function playMusicSafe(){
-  try{
-    music.muted = false;
-    music.currentTime = 0;
-    const p = music.play();
-    if(p !== undefined){
-      p.catch(()=>{
-        // 再试一次（兜底）
-        setTimeout(()=>music.play().catch(()=>{}), 100);
-      });
-    }
-  }catch(e){}
+  music.currentTime = 0;
+  music.play().catch(()=>{});
 }
 
 btn.addEventListener("click",()=>{
   playMusicSafe();
+  document.getElementById("soundTip").style.display="none";
 
-  // 💖 爱心
-  for(let i=0;i<12;i++){
+  for(let i=0;i<10;i++){
     const h=document.createElement("div");
     h.className="heart";
     h.innerText="💖";
@@ -125,10 +138,6 @@ btn.addEventListener("click",()=>{
     h.style.bottom="0";
     document.body.appendChild(h);
     setTimeout(()=>h.remove(),2000);
-  }
-
-  if(isBirthday){
-    document.getElementById("easterEgg").style.display = "block";
   }
 });
 </script>
