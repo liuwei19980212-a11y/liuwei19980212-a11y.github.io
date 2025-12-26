@@ -1,183 +1,146 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>生日快乐 🎂</title>
-<style>
-  body{
-    margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(135deg,#ffe6ee,#f7f2ff);
-    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
-    color:#333;overflow:hidden;
-  }
-  .card{
-    width:min(560px,90vw);background:#ffffffee;border-radius:22px;
-    padding:26px 22px;text-align:center;box-shadow:0 16px 34px rgba(0,0,0,.10);
-  }
-  h1{margin:0 0 10px;font-size:26px}
-  p{margin:10px 0;line-height:1.8}
-  .small{font-size:14px;color:#666}
-  .btn{
-    margin-top:16px;padding:12px 26px;border:0;border-radius:999px;
-    background:#ff6b9d;color:#fff;font-size:16px;
-  }
-  .ghost{
-    margin-top:10px;padding:10px 16px;border-radius:999px;border:1px solid rgba(255,107,157,.35);
-    background:#fff;color:#ff6b9d;font-size:14px;
-  }
-  .heart{position:fixed;font-size:22px;animation:float 1.8s ease-out forwards}
-  @keyframes float{to{opacity:0;transform:translateY(-120px)}}
 
-  /* 底部弹窗 */
-  #mask{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center}
-  #sheet{width:min(560px,100vw);background:#fff;border-radius:18px 18px 0 0;padding:14px 14px 16px}
-  #sheet h3{margin:4px 0 6px;font-size:15px}
-  #sheet .desc{margin:0 0 12px;font-size:13px;color:#666;line-height:1.5}
-  .grid{display:flex;gap:10px;flex-wrap:wrap}
-  .opt{
-    flex:1;min-width:140px;padding:11px 12px;border-radius:12px;border:1px solid #eee;
-    background:#fafafa;font-size:14px;text-align:center;color:#333;
-  }
-  .opt strong{color:#ff6b9d}
-  .close{margin-top:12px;width:100%;padding:11px 12px;border-radius:12px;border:1px solid #eee;background:#fff;color:#666;font-size:14px}
-  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
-    background:rgba(0,0,0,.75);color:#fff;font-size:13px;padding:10px 12px;border-radius:10px;display:none}
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#ffe6ee,#f7f2ff);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
+  color:#333;
+  overflow:hidden;
+}
+.card{
+  width:min(560px,90vw);
+  background:#ffffffee;
+  border-radius:24px;
+  padding:28px 24px;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,.08);
+}
+h1{
+  margin:0 0 12px;
+  font-size:26px;
+}
+p{
+  line-height:1.8;
+  margin:12px 0;
+}
+.from{
+  margin-top:14px;
+  font-weight:500;
+}
+button{
+  margin-top:18px;
+  padding:12px 26px;
+  border:none;
+  border-radius:999px;
+  background:#ff6b9d;
+  color:#fff;
+  font-size:16px;
+}
+.small{
+  font-size:14px;
+  color:#666;
+  margin-top:12px;
+}
+#birthdayOnly{
+  display:none;
+  margin-top:18px;
+}
+#easterEgg{
+  display:none;
+  margin-top:14px;
+  font-size:14px;
+  color:#888;
+}
+.heart{
+  position:fixed;
+  font-size:22px;
+  animation:float 2s ease-out forwards;
+}
+@keyframes float{
+  from{opacity:1;transform:translateY(0)}
+  to{opacity:0;transform:translateY(-120px)}
+}
 </style>
 </head>
 
 <body>
-  <div class="card">
-    <div style="font-size:42px">🎂</div>
-    <h1><span style="color:#ff6b9d">张文静</span>，生日快乐</h1>
+<div class="card">
+  <div style="font-size:42px">🎂</div>
+  <h1><span style="color:#ff6b9d">张文静</span>，生日快乐</h1>
 
+  <p>
+    愿你新的一岁，<br>
+    有热爱，有期待，<br>
+    有人惦记，<br>
+    也被世界温柔以待。
+  </p>
+
+  <p class="from">—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
+
+  <button id="fireBtn">点我一下 🤍</button>
+
+  <p id="countdown" class="small"></p>
+
+  <!-- 生日当天专属 -->
+  <div id="birthdayOnly">
     <p>
-      愿你新的一岁，<br>
-      有热爱，有期待，<br>
-      有人惦记，<br>
-      也被世界温柔以待。
+      🎂 今天是你的生日<br>
+      有些话平时不说，<br>
+      但今天可以。
     </p>
-
-    <p>—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
-
-    <button class="btn" id="boom" type="button">点我一下 🤍</button>
-    <p class="small" id="tip">🎵 点一下按钮，会有音乐和小惊喜</p>
-
-    <p class="small" id="countdown"></p>
-    <p class="small" id="birthdayLine" style="display:none">🎈 今天是她生日</p>
-
-    <button class="ghost" id="choose" type="button">选择一个App去听 →</button>
-    <p class="small" style="color:#999">网易云手机网页易白屏：我做成“复制去搜”更稳</p>
+    <p><b>你真的，很值得被认真对待。</b></p>
   </div>
 
-  <!-- 网页音乐（免版权；iPhone需要点按钮才会播放） -->
-  <audio id="music" preload="auto" playsinline>
-    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
-  </audio>
+  <!-- 隐藏彩蛋 -->
+  <p id="easterEgg">这句话，本来没打算给任何人看。</p>
+</div>
 
-  <!-- 选择弹窗 -->
-  <div id="mask" role="dialog" aria-modal="true">
-    <div id="sheet">
-      <h3>🎧 你想用哪个App听？</h3>
-      <p class="desc" id="songInfo"></p>
-
-      <div class="grid">
-        <button class="opt" id="qq" type="button"><strong>QQ音乐</strong> 搜索打开</button>
-        <button class="opt" id="netease" type="button"><strong>网易云</strong> 复制去搜</button>
-        <button class="opt" id="kugou" type="button"><strong>酷狗</strong> 搜索打开</button>
-        <button class="opt" id="copy" type="button"><strong>复制歌名</strong>（任意App搜）</button>
-      </div>
-
-      <button class="close" id="close" type="button">关闭</button>
-    </div>
-  </div>
-
-  <div id="toast">已复制</div>
+<audio id="music" loop>
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-  // ====== 可改内容（只改这里就够） ======
-  const NAME = "张文静";
-  const FROM = "刘伟";
-  const SONG_NAME = "NOT CUTE ANYMORE";
-  const ARTIST = "ILLIT";
-  const BIRTH_MONTH = 1; // 1月
-  const BIRTH_DAY = 14;  // 14号
-  // =====================================
+const btn = document.getElementById("fireBtn");
+const music = document.getElementById("music");
+const today = new Date();
+const birthday = new Date(today.getFullYear(),0,14);
+const isBirthday = today.getMonth()===0 && today.getDate()===14;
 
-  // 动态信息填充（保持你现在的文案不动就行）
-  // （这里不做复杂模板，避免代码变长）
+if(today>birthday) birthday.setFullYear(today.getFullYear()+1);
+const diff = Math.ceil((birthday - today)/(1000*60*60*24));
 
-  const QUERY = `${SONG_NAME} ${ARTIST}`;
-  const URLS = {
-    qq: `https://y.qq.com/n/ryqq/search?w=${encodeURIComponent(QUERY)}`,
-    kugou: `https://www.kugou.com/yy/html/search.html#searchType=song&searchKeyWord=${encodeURIComponent(QUERY)}`
-  };
+document.getElementById("countdown").innerText =
+  isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
 
-  // 倒计时/生日当天
-  const now = new Date();
-  const isBirthday = (now.getMonth()+1===BIRTH_MONTH) && (now.getDate()===BIRTH_DAY);
+if(isBirthday){
+  document.getElementById("birthdayOnly").style.display="block";
+}
 
-  const next = new Date(now.getFullYear(), BIRTH_MONTH-1, BIRTH_DAY);
-  if (now > next) next.setFullYear(now.getFullYear()+1);
-  const days = Math.ceil((next - now)/(1000*60*60*24));
-
-  document.getElementById("countdown").innerText = isBirthday ? "" : `🎈 距离生日还有 ${days} 天`;
-  document.getElementById("birthdayLine").style.display = isBirthday ? "block" : "none";
-
-  // 点按钮：播放音乐 + 爱心
-  const music = document.getElementById("music");
-  document.getElementById("boom").addEventListener("click", ()=>{
-    music.play().catch(()=>{});
-    document.getElementById("tip").style.display = "none";
-
-    for(let i=0;i<10;i++){
-      const h=document.createElement("div");
-      h.className="heart";
-      h.innerText = Math.random()>.5 ? "💖" : "🎆";
-      h.style.left = (Math.random()*100) + "vw";
-      h.style.bottom = "0";
-      document.body.appendChild(h);
-      setTimeout(()=>h.remove(),1800);
-    }
-  });
-
-  // 弹窗
-  const mask = document.getElementById("mask");
-  const sheetInfo = document.getElementById("songInfo");
-  sheetInfo.textContent = `歌名：${SONG_NAME}  ·  歌手：${ARTIST}`;
-
-  function openSheet(){ mask.style.display="flex"; }
-  function closeSheet(){ mask.style.display="none"; }
-
-  document.getElementById("choose").addEventListener("click", openSheet);
-  document.getElementById("close").addEventListener("click", closeSheet);
-  mask.addEventListener("click",(e)=>{ if(e.target===mask) closeSheet(); });
-
-  // 复制小工具
-  const toast = document.getElementById("toast");
-  function showToast(t){
-    toast.innerText=t; toast.style.display="block";
-    setTimeout(()=>toast.style.display="none",1200);
+btn.addEventListener("click",()=>{
+  music.play();
+  for(let i=0;i<10;i++){
+    const h=document.createElement("div");
+    h.className="heart";
+    h.innerText="💖";
+    h.style.left=Math.random()*100+"vw";
+    h.style.bottom="0";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),2000);
   }
-  async function copyText(text){
-    try{ await navigator.clipboard.writeText(text); return true; }
-    catch(e){ return false; }
+  if(isBirthday){
+    document.getElementById("easterEgg").style.display="block";
   }
-
-  document.getElementById("qq").addEventListener("click", ()=>location.href=URLS.qq);
-  document.getElementById("kugou").addEventListener("click", ()=>location.href=URLS.kugou);
-
-  document.getElementById("netease").addEventListener("click", async ()=>{
-    const ok = await copyText(QUERY);
-    showToast(ok ? "已复制：去网易云搜就行" : "复制失败：手动搜一下");
-    closeSheet();
-  });
-
-  document.getElementById("copy").addEventListener("click", async ()=>{
-    const ok = await copyText(QUERY);
-    showToast(ok ? "已复制：歌名+歌手" : "复制失败：手动复制");
-    closeSheet();
-  });
+});
 </script>
 </body>
 </html>
