@@ -6,19 +6,17 @@
 <title>生日快乐 🎂</title>
 
 <style>
-  :root{
-    --pink:#ff6b9d;
-    --text:#333;
-  }
+  :root{ --pink:#ff6b9d; --text:#333; }
+
   body{
     margin:0;
     min-height:100vh;
     display:flex;
     justify-content:center;
 
-    /* ✅ 往下移：不再垂直居中，改为从上往下排 + 顶部留白 */
+    /* ✅ 往下移：加大顶部留白（卡片整体更靠下） */
     align-items:flex-start;
-    padding:clamp(110px, 16vh, 190px) 0 70px;
+    padding:clamp(190px, 26vh, 320px) 0 70px;
 
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
     color:var(--text);
@@ -26,7 +24,7 @@
     background:#f7f2ff;
   }
 
-  /* 背景图（仓库里放 bg.jpg.JPG，大小写要一模一样） */
+  /* 背景图（仓库里文件名必须大小写完全一致：bg.jpg.JPG） */
   body::before{
     content:"";
     position:fixed;
@@ -36,7 +34,6 @@
     filter: brightness(.92) saturate(1.05);
     z-index:-2;
   }
-  /* 柔和粉紫罩层 */
   body::after{
     content:"";
     position:fixed;
@@ -45,7 +42,6 @@
     z-index:-1;
   }
 
-  /* 玻璃卡片（透明） */
   .card{
     width:min(560px,90vw);
     border-radius:26px;
@@ -58,19 +54,10 @@
     box-shadow:0 18px 50px rgba(0,0,0,.12);
   }
 
-  h1{
-    margin:6px 0 10px;
-    font-size:26px;
-    letter-spacing:.5px;
-  }
-  p{
-    line-height:1.85;
-    margin:12px 0;
-  }
-  .from{
-    margin-top:14px;
-    font-weight:600;
-  }
+  h1{ margin:6px 0 10px; font-size:26px; letter-spacing:.5px; }
+  p{ line-height:1.85; margin:12px 0; }
+  .from{ margin-top:14px; font-weight:600; }
+
   .btn{
     margin-top:16px;
     padding:12px 26px;
@@ -84,12 +71,8 @@
     cursor:pointer;
   }
   .btn:active{ transform:translateY(1px); }
-  .small{
-    font-size:14px;
-    color:rgba(51,51,51,.75);
-    margin-top:10px;
-  }
 
+  .small{ font-size:14px; color:rgba(51,51,51,.75); margin-top:10px; }
   #birthdayOnly{ display:none; margin-top:16px; }
   #easterEgg{ display:none; margin-top:12px; font-size:14px; color:rgba(51,51,51,.6); }
 
@@ -106,10 +89,10 @@
   }
   @keyframes rise{
     from{ opacity:1; transform:translate(var(--x), var(--y0)) scale(1); }
-    to  { opacity:0; transform:translate(var(--x2), var(--y1)) scale(1.05); }
+    to  { opacity:0; transform:translate(var(--x2), var(--y1)) scale(1.08); }
   }
 
-  /* QQ音乐弹窗（仿 iOS 底部 sheet） */
+  /* QQ音乐弹窗 */
   .sheetMask{
     position:fixed;
     inset:0;
@@ -129,12 +112,7 @@
     box-shadow:0 20px 60px rgba(0,0,0,.22);
     overflow:hidden;
   }
-  .sheetHead{
-    padding:14px 16px 10px;
-    font-weight:700;
-    color:#222;
-    text-align:left;
-  }
+  .sheetHead{ padding:14px 16px 10px; font-weight:700; color:#222; text-align:left; }
   .sheetBtn{
     width:100%;
     padding:14px 16px;
@@ -144,21 +122,15 @@
     font-weight:700;
     cursor:pointer;
   }
-  .sheetBtnPrimary{
-    border-top:1px solid rgba(0,0,0,.06);
-  }
+  .sheetBtnPrimary{ border-top:1px solid rgba(0,0,0,.06); }
   .sheetBtnPrimary span{ color:#111; }
   .sheetBtnPrimary small{
-    display:block;
-    margin-top:6px;
-    font-weight:500;
-    color:rgba(0,0,0,.48);
-    font-size:13px;
+    display:block; margin-top:6px;
+    font-weight:500; color:rgba(0,0,0,.48); font-size:13px;
   }
   .sheetBtnCancel{
     border-top:10px solid rgba(0,0,0,.06);
-    color:#666;
-    font-weight:700;
+    color:#666; font-weight:700;
   }
 </style>
 </head>
@@ -194,7 +166,6 @@
     <p id="easterEgg">（小声）如果你愿意，今年我想把“惦记”做得更具体一点。</p>
   </div>
 
-  <!-- QQ音乐弹窗 -->
   <div class="sheetMask" id="sheetMask">
     <div class="sheet">
       <div class="sheetHead">🎧 我也去听了你推荐的歌</div>
@@ -212,13 +183,11 @@
   const goQQ = document.getElementById("goQQ");
   const noThanks = document.getElementById("noThanks");
 
-  // QQ 音乐分享链接
   const qqUrl = "https://c6.y.qq.com/base/fcgi-bin/u?__=cZQLF5iyxaK7";
 
   // 生日：1月14日
   const now = new Date();
-  const today = new Date(now);
-  today.setHours(0,0,0,0);
+  const today = new Date(now); today.setHours(0,0,0,0);
 
   let birthday = new Date(today.getFullYear(), 0, 14);
   const isBirthday = (today.getMonth()===0 && today.getDate()===14);
@@ -233,10 +202,13 @@
   let clicks = 0;
 
   function spawnFX(){
-    const icons = ["💗","🩷","💖","✨","🎆","🎇"];
-    const n = 42;
+    // ✅ 更偏“烟花+🩷”，并且数量更多
+    const icons = ["🩷","🩷","🩷","💗","💗","💖","🎆","🎆","🎇","🎇","✨"];
+    const n = 88; // ✅ 原来 42，改成更密
     const startY = window.innerHeight - 80;
-    const riseTo = Math.max(180, window.innerHeight * 0.30);
+
+    // 结束高度：再往上飘一点，但不飘到顶（越小越靠上）
+    const riseTo = Math.max(220, window.innerHeight * 0.34);
 
     for(let i=0;i<n;i++){
       const el = document.createElement("div");
@@ -244,16 +216,16 @@
       el.textContent = icons[Math.floor(Math.random()*icons.length)];
 
       const x = Math.random() * window.innerWidth;
-      const x2 = x + (Math.random()*160 - 80);
+      const x2 = x + (Math.random()*220 - 110);
 
       el.style.setProperty("--x", x + "px");
       el.style.setProperty("--x2", x2 + "px");
-      el.style.setProperty("--y0", startY + (Math.random()*40) + "px");
-      el.style.setProperty("--y1", riseTo + (Math.random()*40) + "px");
-      el.style.fontSize = (18 + Math.random()*14) + "px";
+      el.style.setProperty("--y0", (startY + Math.random()*60) + "px");
+      el.style.setProperty("--y1", (riseTo + Math.random()*60) + "px");
+      el.style.fontSize = (18 + Math.random()*18) + "px";
 
       document.body.appendChild(el);
-      setTimeout(()=> el.remove(), 2000);
+      setTimeout(()=> el.remove(), 2100);
     }
   }
 
@@ -273,9 +245,7 @@
     sheetMask.style.display = "none";
   });
 
-  noThanks.addEventListener("click", ()=>{
-    sheetMask.style.display = "none";
-  });
+  noThanks.addEventListener("click", ()=>{ sheetMask.style.display = "none"; });
 
   sheetMask.addEventListener("click", (e)=>{
     if(e.target === sheetMask) sheetMask.style.display = "none";
