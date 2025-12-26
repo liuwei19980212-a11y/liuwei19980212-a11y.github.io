@@ -27,6 +27,7 @@ body{
 }
 h1{margin:0 0 12px;font-size:26px}
 p{line-height:1.8;margin:12px 0}
+
 button{
   margin-top:18px;
   padding:12px 26px;
@@ -38,6 +39,7 @@ button{
 }
 .small{font-size:14px;color:#666;margin-top:12px}
 .subtle{font-size:13px;color:#999;margin-top:8px}
+
 .linkBtn{
   display:inline-block;
   margin-top:10px;
@@ -48,6 +50,7 @@ button{
   text-decoration:none;
   font-size:14px;
 }
+
 #birthdayOnly{display:none;margin-top:14px}
 #easterEgg{display:none;margin-top:14px;font-size:14px;color:#888}
 
@@ -59,6 +62,79 @@ button{
 @keyframes float{
   from{opacity:1;transform:translateY(0)}
   to{opacity:0;transform:translateY(-120px)}
+}
+
+/* 选择框（底部弹窗） */
+#sheetMask{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.35);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  z-index:9999;
+}
+#sheet{
+  width:min(560px,100vw);
+  background:#fff;
+  border-radius:18px 18px 0 0;
+  padding:16px 16px 18px;
+  box-shadow:0 -12px 30px rgba(0,0,0,.18);
+}
+.sheetTitle{
+  font-size:15px;
+  font-weight:600;
+  margin:4px 0 10px;
+}
+.sheetDesc{
+  font-size:13px;
+  color:#666;
+  margin:0 0 12px;
+  line-height:1.5;
+}
+.sheetBtns{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.sheetBtn{
+  flex:1;
+  min-width:140px;
+  padding:11px 12px;
+  border-radius:12px;
+  border:1px solid #eee;
+  background:#fafafa;
+  font-size:14px;
+  text-align:center;
+  color:#333;
+}
+.sheetBtn strong{color:#ff6b9d}
+.sheetFooter{
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+}
+.sheetClose{
+  flex:1;
+  padding:11px 12px;
+  border-radius:12px;
+  border:1px solid #eee;
+  background:#fff;
+  font-size:14px;
+  color:#666;
+}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:22px;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.75);
+  color:#fff;
+  font-size:13px;
+  padding:10px 12px;
+  border-radius:10px;
+  display:none;
+  z-index:10000;
 }
 </style>
 </head>
@@ -96,17 +172,13 @@ button{
   <!-- 🎁 彩蛋：仅生日当天 + 点按钮才出现 -->
   <p id="easterEgg">这句话，本来没打算给任何人看。</p>
 
-  <!-- 🎧 她推荐的歌：先唤起 App，不行再退回网页 -->
+  <!-- 🎧 她推荐的歌：让她自己选平台 -->
   <div style="margin-top:22px">
     <p class="small">🎧 有一首你最近分享的歌，我也听了。</p>
-
-    <a class="linkBtn" href="javascript:void(0)" id="openSongBtn">
-      去听那首歌 →
+    <a class="linkBtn" href="javascript:void(0)" id="chooseAppBtn">
+      选择一个App去听 →
     </a>
-
-    <p class="subtle">
-      如果没自动打开 QQ 音乐，会跳到网页中转页；再点一次底部绿色按钮就行。
-    </p>
+    <p class="subtle">不强行跳转，你用哪个就选哪个。</p>
   </div>
 </div>
 
@@ -115,10 +187,39 @@ button{
   <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
 </audio>
 
+<!-- 底部选择框 -->
+<div id="sheetMask" role="dialog" aria-modal="true">
+  <div id="sheet">
+    <div class="sheetTitle">🎧 你想用哪个App听？</div>
+    <div class="sheetDesc" id="songInfo"></div>
+
+    <div class="sheetBtns">
+      <button class="sheetBtn" id="openQQ"><strong>QQ音乐</strong> 搜索打开</button>
+      <button class="sheetBtn" id="openNetease"><strong>网易云</strong> 搜索打开</button>
+      <button class="sheetBtn" id="openKugou"><strong>酷狗</strong> 搜索打开</button>
+      <button class="sheetBtn" id="copyName"><strong>复制歌名</strong>（任意App搜）</button>
+    </div>
+
+    <div class="sheetFooter">
+      <button class="sheetClose" id="closeSheet">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">已复制</div>
+
 <script>
-/** ====== 基本信息 ====== **/
-const SONGMID = "003ZyF2B2j9tZz";
-const WEB_FALLBACK = `https://i.y.qq.com/v8/playsong.html?songmid=${SONGMID}`;
+/** ====== 歌曲信息（用于“复制歌名/搜索”）====== **/
+const SONG_NAME = "NOT CUTE ANYMORE";
+const ARTIST = "ILLIT";
+const QUERY = `${SONG_NAME} ${ARTIST}`;
+
+/** 搜索链接（让她自己选平台） */
+const URLS = {
+  qq: `https://y.qq.com/n/ryqq/search?w=${encodeURIComponent(QUERY)}`,
+  netease: `https://music.163.com/#/search/m/?s=${encodeURIComponent(QUERY)}&type=1`,
+  kugou: `https://www.kugou.com/yy/html/search.html#searchType=song&searchKeyWord=${encodeURIComponent(QUERY)}`
+};
 
 /** ====== 倒计时/生日判断（1月14） ====== **/
 const today = new Date();
@@ -163,23 +264,64 @@ btn.addEventListener("click", () => {
   if (isBirthday) document.getElementById("easterEgg").style.display = "block";
 });
 
-/** ====== QQ音乐：优先唤起App（避免黑色中转页的最佳办法） ====== **/
-function openQQMusicSong(){
-  // qqmusic://qq.com/media/playSonglist?p={"song":[{"songmid":"xxxx"}]}
-  const payload = { song: [{ songmid: SONGMID }] };
-  const p = encodeURIComponent(JSON.stringify(payload));
-  const scheme = `qqmusic://qq.com/media/playSonglist?p=${p}`;
+/** ====== 选择平台弹窗 ====== **/
+const sheetMask = document.getElementById("sheetMask");
+const chooseAppBtn = document.getElementById("chooseAppBtn");
+const closeSheet = document.getElementById("closeSheet");
+const songInfo = document.getElementById("songInfo");
+const toast = document.getElementById("toast");
 
-  // 尝试唤起App
-  window.location.href = scheme;
+songInfo.textContent = `歌名：${SONG_NAME}  ·  歌手：${ARTIST}`;
 
-  // 兜底：如果没装App/没唤起成功，稍后跳网页（可能出现黑色中转页，但能点绿色按钮进App）
-  setTimeout(() => {
-    window.location.href = WEB_FALLBACK;
-  }, 900);
+function openSheet(){
+  sheetMask.style.display = "flex";
+}
+function hideSheet(){
+  sheetMask.style.display = "none";
 }
 
-document.getElementById("openSongBtn").addEventListener("click", openQQMusicSong);
+chooseAppBtn.addEventListener("click", openSheet);
+closeSheet.addEventListener("click", hideSheet);
+sheetMask.addEventListener("click", (e)=>{
+  if(e.target === sheetMask) hideSheet();
+});
+
+document.getElementById("openQQ").addEventListener("click", ()=>{
+  window.open(URLS.qq, "_blank");
+  hideSheet();
+});
+document.getElementById("openNetease").addEventListener("click", ()=>{
+  window.open(URLS.netease, "_blank");
+  hideSheet();
+});
+document.getElementById("openKugou").addEventListener("click", ()=>{
+  window.open(URLS.kugou, "_blank");
+  hideSheet();
+});
+
+function showToast(text){
+  toast.textContent = text;
+  toast.style.display = "block";
+  setTimeout(()=>toast.style.display="none", 1400);
+}
+
+document.getElementById("copyName").addEventListener("click", async ()=>{
+  const text = QUERY;
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast("已复制：歌名+歌手");
+  }catch(e){
+    // 兼容兜底
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand("copy"); showToast("已复制：歌名+歌手"); }
+    catch(err){ showToast("复制失败：请手动记一下"); }
+    ta.remove();
+  }
+  hideSheet();
+});
 </script>
 </body>
 </html>
