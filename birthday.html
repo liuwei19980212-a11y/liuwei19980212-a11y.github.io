@@ -72,7 +72,6 @@
   #birthdayOnly{ display:none; margin-top:16px; }
   #easterEgg{ display:none; margin-top:12px; font-size:14px; color:rgba(51,51,51,.6); }
 
-  /* ✅ 粒子动画更久、更柔：单个粒子 2.4s */
   .fx{
     position:fixed;
     left:0; top:0;
@@ -143,7 +142,7 @@
 
 <body>
   <div class="card" id="card">
-    <div style="font-size:42px; margin-bottom:2px;">🎂</div>
+    <div id="cake" style="font-size:42px; margin-bottom:2px;">🎂</div>
 
     <h1><span style="color:var(--pink)">张文静</span>，生日快乐</h1>
 
@@ -185,6 +184,7 @@
 
 <script>
   const btn = document.getElementById("fireBtn");
+  const cake = document.getElementById("cake");
   const sheetMask = document.getElementById("sheetMask");
   const goQQ = document.getElementById("goQQ");
   const noThanks = document.getElementById("noThanks");
@@ -218,15 +218,15 @@
       let dx = Math.cos(angle) * r;
       let dy = Math.sin(angle) * r;
 
-      // 往上飘一点但别冲顶
-      dy -= 35;
-      if (dy < -230) dy = -230;
+      // 轻微上扬，但不冲顶
+      dy -= 28;
+      if (dy < -200) dy = -200;
       if (originY + dy < 140) dy = 140 - originY;
 
-      // 起点抖动 + 轻微旋转
-      const jitterX = (Math.random()*22 - 11);
-      const jitterY = (Math.random()*16 - 8);
-      const rot = (Math.random()*60 - 30) + "deg";
+      // 让起点更贴近蛋糕中心（抖动更小）
+      const jitterX = (Math.random()*10 - 5);
+      const jitterY = (Math.random()*10 - 5);
+      const rot = (Math.random()*50 - 25) + "deg";
 
       el.style.setProperty("--x0", (originX + jitterX) + "px");
       el.style.setProperty("--y0", (originY + jitterY) + "px");
@@ -240,22 +240,23 @@
   }
 
   function spawnOneWave(){
-    const b = btn.getBoundingClientRect();
-    const originX = b.left + b.width/2;
-    const originY = b.top + b.height/2;
+    // ✅ 起点：蛋糕中心
+    const c = cake.getBoundingClientRect();
+    const originX = c.left + c.width/2;
+    const originY = c.top + c.height/2;
 
-    // ✅ 数量明显加大：每波更“炸”
-    burst(originX, originY, 28, ["🩷","💗","💖","💞","💕"], 80, 220, 18, 30);
-    burst(originX, originY, 22, ["🎆","🎇"],             70, 200, 18, 28);
-    burst(originX, originY, 34, ["✨","✦","✧","✨"],     90, 260, 14, 22);
+    // ✅ 收紧半径：更贴近蛋糕周围“冒出来”
+    burst(originX, originY, 34, ["🩷","💗","💖","💞","💕"], 40, 125, 18, 30);
+    burst(originX, originY, 26, ["🎆","🎇"],              35, 110, 18, 28);
+    burst(originX, originY, 38, ["✨","✦","✧","✨"],      45, 145, 14, 22);
   }
 
-  // ✅ “最好是两秒持续绽放”：严格持续 2000ms，一直在爆
+  // ✅ 2 秒持续绽放（多波次、但都围着蛋糕）
   function spawnFX2s(){
     const start = Date.now();
     spawnOneWave();
 
-    const interval = 140; // 波更密：更像持续绽放
+    const interval = 130;
     const t = setInterval(()=>{
       spawnOneWave();
       if(Date.now() - start >= 2000) clearInterval(t);
