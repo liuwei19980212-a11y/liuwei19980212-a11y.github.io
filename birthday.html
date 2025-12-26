@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>生日快乐 🎂</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#ffe6ee,#eaf4ff);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  color:#333;
+  overflow:hidden;
+}
+.card{
+  width:min(560px,90vw);
+  background:#ffffffdd;
+  border-radius:24px;
+  padding:28px 24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+  text-align:center;
+  backdrop-filter:blur(10px);
+}
+.cake{font-size:64px}
+h1{margin:12px 0}
+.name{color:#ff5a7a;font-weight:700}
+p{font-size:17px;line-height:1.9;margin:10px 0}
+.btn{
+  margin-top:16px;
+  padding:12px 18px;
+  font-size:16px;
+  border:none;
+  border-radius:14px;
+  background:#ff5a7a;
+  color:#fff;
+}
+.info{margin-top:12px;font-size:15px}
+.heart{
+  position:absolute;
+  font-size:20px;
+  animation:floatUp 4s linear forwards;
+}
+@keyframes floatUp{
+  from{transform:translateY(0);opacity:1}
+  to{transform:translateY(-120vh);opacity:0}
+}
+canvas{position:fixed;inset:0;pointer-events:none}
+</style>
+</head>
+
+<body>
+
+<canvas id="fx"></canvas>
+
+<audio id="music" loop>
+  <source src="https://assets.mixkit.co/music/preview/mixkit-happy-birthday-to-you-107.mp3" type="audio/mpeg">
+</audio>
+
+<div class="card" onclick="playMusic()">
+  <div class="cake">🎂</div>
+  <h1><span class="name">张文静</span>，生日快乐</h1>
+
+  <p>
+    愿你新的一岁，<br>
+    有热爱，有期待，<br>
+    有人惦记，也被世界温柔以待。
+  </p>
+
+  <p>—— 来自 <span class="name">刘伟</span></p>
+
+  <button class="btn" onclick="celebrate(event)">点我一下 🎆</button>
+  <div class="info" id="dateInfo"></div>
+</div>
+
+<script>
+/* 🎵 播放音乐（iPhone 需要用户点击） */
+function playMusic(){
+  document.getElementById("music").play();
+}
+
+/* 🎆 爱心 + 烟花 */
+function celebrate(e){
+  e.stopPropagation();
+  for(let i=0;i<20;i++){
+    const h=document.createElement("div");
+    h.className="heart";
+    h.textContent="💖";
+    h.style.left=Math.random()*100+"vw";
+    h.style.bottom="0";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),4000);
+  }
+  fireworks();
+}
+
+/* 🎇 简易烟花 */
+const c=document.getElementById("fx");
+const ctx=c.getContext("2d");
+let W,H;
+function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
+addEventListener("resize",resize);resize();
+
+function fireworks(){
+  const ps=[...Array(160)].map(()=>({
+    x:W/2,y:H/2,
+    vx:(Math.random()*2-1)*6,
+    vy:(Math.random()*2-1)*6,
+    a:1
+  }));
+  (function tick(){
+    ctx.clearRect(0,0,W,H);
+    ps.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.a*=0.96;
+      ctx.globalAlpha=p.a;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,2,0,Math.PI*2);
+      ctx.fill();
+    });
+    if(ps.some(p=>p.a>0.05)) requestAnimationFrame(tick);
+    else ctx.clearRect(0,0,W,H);
+  })();
+}
+
+/* 📅 生日判断：1 月 14 号 */
+(function(){
+  const now=new Date();
+  const year=now.getFullYear();
+  const birthday=new Date(year,0,14);
+  if(now>birthday) birthday.setFullYear(year+1);
+  const diff=Math.ceil((birthday-now)/(1000*60*60*24));
+  document.getElementById("dateInfo").textContent =
+    diff===0 ? "🎂 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
+})();
+</script>
+
+</body>
+</html>
