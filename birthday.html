@@ -37,7 +37,7 @@
     to{opacity:0;transform:translate(calc(-50% + var(--dx)), -140px) scale(1.15)}
   }
 
-  /* 选择平台弹层 */
+  /* 弹层 */
   #sheetMask{
     position:fixed;inset:0;background:rgba(0,0,0,.25);
     display:none;align-items:flex-end;justify-content:center;
@@ -50,8 +50,9 @@
   .hint{font-size:12px;color:#888;margin:0 6px 10px}
   .row{display:flex;gap:10px;flex-wrap:wrap;padding:0 6px 10px}
   .pill{
-    flex:1 1 160px;border:1px solid #eee;border-radius:999px;
-    padding:10px 12px;background:#fafafa;font-size:15px;
+    width:100%;
+    border:1px solid #eee;border-radius:999px;
+    padding:12px 14px;background:#fafafa;font-size:15px;
   }
   .pill b{color:#111}
   .close{
@@ -69,8 +70,8 @@
     <p>
       愿你新的一岁，<br>
       眼里有光，心里有糖，<br>
-      有人惦记，<br>
-      也被世界温柔以待。
+      每一次被认真对待，<br>
+      都刚好有我在场。
     </p>
 
     <p class="from">—— 来自 <span style="color:var(--pink)">刘伟</span></p>
@@ -88,11 +89,10 @@
 
   <div id="sheetMask">
     <div id="sheet">
-      <div class="sheetTitle">想用哪个App听《NOT CUTE ANYMORE》？</div>
+      <div class="sheetTitle">🎧 我也去听了你推荐的歌</div>
       <div class="hint">如果在微信里不跳转：右上角“…” → 用Safari打开再点一次。</div>
       <div class="row">
-        <button class="pill" id="goQQ"><b>QQ音乐</b>（直达）</button>
-        <button class="pill" id="go163"><b>网易云</b>（直达）</button>
+        <button class="pill" id="goQQ"><b>去 QQ音乐听《NOT CUTE ANYMORE》</b></button>
       </div>
       <button class="close" id="closeSheet">先不听</button>
     </div>
@@ -109,11 +109,8 @@
     isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diffDays} 天`;
   if (isBirthday) document.getElementById("birthdayOnly").style.display = "block";
 
-  // 直达链接（你给我的）
-  const QQ_URL      = "https://c6.y.qq.com/base/fcgi-bin/u?__=cZQLF5iyxaK7";
-  const NETEASE_URL = "https://163cn.tv/Yq4dimM";
-
-  function openLink(url){ window.location.href = url; }
+  // QQ音乐直达链接（你给我的）
+  const QQ_URL = "https://c6.y.qq.com/base/fcgi-bin/u?__=cZQLF5iyxaK7";
 
   // 爱心特效 + 弹层
   const btn = document.getElementById("fireBtn");
@@ -137,8 +134,7 @@
     mask.style.display="flex";
   });
 
-  document.getElementById("goQQ").onclick  = ()=>openLink(QQ_URL);
-  document.getElementById("go163").onclick = ()=>openLink(NETEASE_URL);
+  document.getElementById("goQQ").onclick = ()=>{ window.location.href = QQ_URL; };
 
   document.getElementById("closeSheet").onclick = ()=>mask.style.display="none";
   mask.addEventListener("click",(e)=>{ if(e.target===mask) mask.style.display="none"; });
