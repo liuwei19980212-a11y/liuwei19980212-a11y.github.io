@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>生日快乐 🎂</title>
 
 <style>
@@ -12,131 +12,135 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:linear-gradient(135deg,#ffe6ee,#eaf4ff);
-  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:linear-gradient(135deg,#ffe6ee,#f7f2ff);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
   color:#333;
   overflow:hidden;
 }
 .card{
   width:min(560px,90vw);
-  background:#ffffffdd;
+  background:#ffffffee;
   border-radius:24px;
   padding:28px 24px;
-  box-shadow:0 20px 60px rgba(0,0,0,.15);
   text-align:center;
-  backdrop-filter:blur(10px);
+  box-shadow:0 20px 40px rgba(0,0,0,.08);
 }
-.cake{font-size:64px}
-h1{margin:12px 0}
-.name{color:#ff5a7a;font-weight:700}
-p{font-size:17px;line-height:1.9;margin:10px 0}
-.btn{
-  margin-top:16px;
-  padding:12px 18px;
-  font-size:16px;
+h1{
+  margin:0 0 12px;
+  font-size:26px;
+}
+p{
+  line-height:1.8;
+  margin:12px 0;
+}
+.from{
+  margin-top:14px;
+  font-weight:500;
+}
+button{
+  margin-top:18px;
+  padding:12px 26px;
   border:none;
-  border-radius:14px;
-  background:#ff5a7a;
+  border-radius:999px;
+  background:#ff6b9d;
   color:#fff;
+  font-size:16px;
 }
-.info{margin-top:12px;font-size:15px}
+.small{
+  font-size:14px;
+  color:#666;
+  margin-top:12px;
+}
+#birthdayOnly{
+  display:none;
+  margin-top:18px;
+}
+#easterEgg{
+  display:none;
+  margin-top:14px;
+  font-size:14px;
+  color:#888;
+}
 .heart{
-  position:absolute;
-  font-size:20px;
-  animation:floatUp 4s linear forwards;
+  position:fixed;
+  font-size:22px;
+  animation:float 2s ease-out forwards;
 }
-@keyframes floatUp{
-  from{transform:translateY(0);opacity:1}
-  to{transform:translateY(-120vh);opacity:0}
+@keyframes float{
+  from{opacity:1;transform:translateY(0)}
+  to{opacity:0;transform:translateY(-120px)}
 }
-canvas{position:fixed;inset:0;pointer-events:none}
 </style>
 </head>
 
 <body>
-
-<canvas id="fx"></canvas>
-
-<audio id="music" loop>
-  <source src="https://assets.mixkit.co/music/preview/mixkit-happy-birthday-to-you-107.mp3" type="audio/mpeg">
-</audio>
-
-<div class="card" onclick="playMusic()">
-  <div class="cake">🎂</div>
-  <h1><span class="name">张文静</span>，生日快乐</h1>
+<div class="card">
+  <div style="font-size:42px">🎂</div>
+  <h1><span style="color:#ff6b9d">张文静</span>，生日快乐</h1>
 
   <p>
     愿你新的一岁，<br>
     有热爱，有期待，<br>
-    有人惦记，也被世界温柔以待。
+    有人惦记，<br>
+    也被世界温柔以待。
   </p>
 
-  <p>—— 来自 <span class="name">刘伟</span></p>
+  <p class="from">—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
 
-  <button class="btn" onclick="celebrate(event)">点我一下 🎆</button>
-  <div class="info" id="dateInfo"></div>
+  <button id="fireBtn">点我一下 🤍</button>
+
+  <p id="countdown" class="small"></p>
+
+  <!-- 生日当天专属 -->
+  <div id="birthdayOnly">
+    <p>
+      🎂 今天是你的生日<br>
+      有些话平时不说，<br>
+      但今天可以。
+    </p>
+    <p><b>你真的，很值得被认真对待。</b></p>
+  </div>
+
+  <!-- 隐藏彩蛋 -->
+  <p id="easterEgg">这句话，本来没打算给任何人看。</p>
 </div>
 
+<audio id="music" loop>
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
+</audio>
+
 <script>
-/* 🎵 播放音乐（iPhone 需要用户点击） */
-function playMusic(){
-  document.getElementById("music").play();
+const btn = document.getElementById("fireBtn");
+const music = document.getElementById("music");
+const today = new Date();
+const birthday = new Date(today.getFullYear(),0,14);
+const isBirthday = today.getMonth()===0 && today.getDate()===14;
+
+if(today>birthday) birthday.setFullYear(today.getFullYear()+1);
+const diff = Math.ceil((birthday - today)/(1000*60*60*24));
+
+document.getElementById("countdown").innerText =
+  isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
+
+if(isBirthday){
+  document.getElementById("birthdayOnly").style.display="block";
 }
 
-/* 🎆 爱心 + 烟花 */
-function celebrate(e){
-  e.stopPropagation();
-  for(let i=0;i<20;i++){
+btn.addEventListener("click",()=>{
+  music.play();
+  for(let i=0;i<10;i++){
     const h=document.createElement("div");
     h.className="heart";
-    h.textContent="💖";
+    h.innerText="💖";
     h.style.left=Math.random()*100+"vw";
     h.style.bottom="0";
     document.body.appendChild(h);
-    setTimeout(()=>h.remove(),4000);
+    setTimeout(()=>h.remove(),2000);
   }
-  fireworks();
-}
-
-/* 🎇 简易烟花 */
-const c=document.getElementById("fx");
-const ctx=c.getContext("2d");
-let W,H;
-function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
-addEventListener("resize",resize);resize();
-
-function fireworks(){
-  const ps=[...Array(160)].map(()=>({
-    x:W/2,y:H/2,
-    vx:(Math.random()*2-1)*6,
-    vy:(Math.random()*2-1)*6,
-    a:1
-  }));
-  (function tick(){
-    ctx.clearRect(0,0,W,H);
-    ps.forEach(p=>{
-      p.x+=p.vx;p.y+=p.vy;p.a*=0.96;
-      ctx.globalAlpha=p.a;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,2,0,Math.PI*2);
-      ctx.fill();
-    });
-    if(ps.some(p=>p.a>0.05)) requestAnimationFrame(tick);
-    else ctx.clearRect(0,0,W,H);
-  })();
-}
-
-/* 📅 生日判断：1 月 14 号 */
-(function(){
-  const now=new Date();
-  const year=now.getFullYear();
-  const birthday=new Date(year,0,14);
-  if(now>birthday) birthday.setFullYear(year+1);
-  const diff=Math.ceil((birthday-now)/(1000*60*60*24));
-  document.getElementById("dateInfo").textContent =
-    diff===0 ? "🎂 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
-})();
+  if(isBirthday){
+    document.getElementById("easterEgg").style.display="block";
+  }
+});
 </script>
-
 </body>
 </html>
