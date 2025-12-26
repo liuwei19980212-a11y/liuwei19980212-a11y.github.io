@@ -13,11 +13,8 @@
     min-height:100vh;
     display:flex;
     justify-content:center;
-
-    /* ✅ 再往下移一点：让脸更露出来 */
     align-items:flex-start;
     padding:clamp(290px, 40vh, 460px) 0 70px;
-
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
     color:var(--text);
     overflow:hidden;
@@ -75,29 +72,30 @@
   #birthdayOnly{ display:none; margin-top:16px; }
   #easterEgg{ display:none; margin-top:12px; font-size:14px; color:rgba(51,51,51,.6); }
 
-  /* ✅ 绽放特效：爆开 + 持续更久（单个粒子动画更长） */
+  /* ✅ 粒子动画更久、更柔：单个粒子 2.4s */
   .fx{
     position:fixed;
     left:0; top:0;
     pointer-events:none;
     z-index:10;
     will-change:transform,opacity;
-    animation: burst 2s cubic-bezier(.18,.75,.22,1) forwards;
+    animation: burst 2.4s cubic-bezier(.16,.78,.18,1) forwards;
     filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
   }
   @keyframes burst{
     0%{
       opacity:0;
-      transform:translate3d(var(--x0), var(--y0), 0) scale(.6);
+      transform:translate3d(var(--x0), var(--y0), 0) scale(.55) rotate(var(--rot));
     }
-    10%{ opacity:1; }
+    8%{ opacity:1; }
+    85%{ opacity:1; }
     100%{
       opacity:0;
       transform:translate3d(
         calc(var(--x0) + var(--dx)),
         calc(var(--y0) + var(--dy)),
         0
-      ) scale(1.15);
+      ) scale(1.15) rotate(calc(var(--rot) + 40deg));
     }
   }
 
@@ -195,7 +193,6 @@
 
   const now = new Date();
   const today = new Date(now); today.setHours(0,0,0,0);
-
   let birthday = new Date(today.getFullYear(), 0, 14);
   const isBirthday = (today.getMonth()===0 && today.getDate()===14);
   if (today > birthday) birthday = new Date(today.getFullYear()+1, 0, 14);
@@ -221,24 +218,24 @@
       let dx = Math.cos(angle) * r;
       let dy = Math.sin(angle) * r;
 
-      // ✅ 往上飘一点，但不要飘到顶：控制上飘幅度
-      dy -= 30;
-      if (dy < -210) dy = -210;
-
-      // ✅ 避免飞到特别靠顶（给顶部留空间）
+      // 往上飘一点但别冲顶
+      dy -= 35;
+      if (dy < -230) dy = -230;
       if (originY + dy < 140) dy = 140 - originY;
 
-      // ✅ 让起点有一点点抖动，更像“绽放”
-      const jitterX = (Math.random()*18 - 9);
-      const jitterY = (Math.random()*12 - 6);
+      // 起点抖动 + 轻微旋转
+      const jitterX = (Math.random()*22 - 11);
+      const jitterY = (Math.random()*16 - 8);
+      const rot = (Math.random()*60 - 30) + "deg";
 
       el.style.setProperty("--x0", (originX + jitterX) + "px");
       el.style.setProperty("--y0", (originY + jitterY) + "px");
       el.style.setProperty("--dx", dx + "px");
       el.style.setProperty("--dy", dy + "px");
+      el.style.setProperty("--rot", rot);
 
       document.body.appendChild(el);
-      setTimeout(()=> el.remove(), 2100);
+      setTimeout(()=> el.remove(), 2500);
     }
   }
 
@@ -247,20 +244,22 @@
     const originX = b.left + b.width/2;
     const originY = b.top + b.height/2;
 
-    // ✅ 每一波都是“绽放式”爆开（不是一排）
-    burst(originX, originY, 18, ["🩷","💗","💖","💞"], 70, 180, 18, 28);
-    burst(originX, originY, 14, ["🎆","🎇"],          60, 160, 18, 26);
-    burst(originX, originY, 22, ["✨","✦","✧","✨"],  80, 230, 14, 20);
+    // ✅ 数量明显加大：每波更“炸”
+    burst(originX, originY, 28, ["🩷","💗","💖","💞","💕"], 80, 220, 18, 30);
+    burst(originX, originY, 22, ["🎆","🎇"],             70, 200, 18, 28);
+    burst(originX, originY, 34, ["✨","✦","✧","✨"],     90, 260, 14, 22);
   }
 
-  // ✅ 持续约 2 秒不断绽放（每 180ms 来一波）
+  // ✅ “最好是两秒持续绽放”：严格持续 2000ms，一直在爆
   function spawnFX2s(){
     const start = Date.now();
-    spawnOneWave(); // 立刻先来一波
+    spawnOneWave();
+
+    const interval = 140; // 波更密：更像持续绽放
     const t = setInterval(()=>{
       spawnOneWave();
       if(Date.now() - start >= 2000) clearInterval(t);
-    }, 180);
+    }, interval);
   }
 
   btn.addEventListener("click", ()=>{
@@ -270,7 +269,6 @@
     if (isBirthday || clicks >= 3){
       document.getElementById("easterEgg").style.display = "block";
     }
-
     sheetMask.style.display = "flex";
   });
 
@@ -280,7 +278,6 @@
   });
 
   noThanks.addEventListener("click", ()=>{ sheetMask.style.display = "none"; });
-
   sheetMask.addEventListener("click", (e)=>{
     if(e.target === sheetMask) sheetMask.style.display = "none";
   });
