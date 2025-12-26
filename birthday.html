@@ -47,16 +47,16 @@
     padding:14px 14px 10px;box-shadow:0 -18px 40px rgba(0,0,0,.18);
   }
   .sheetTitle{font-weight:700;margin:6px 6px 10px}
+  .hint{font-size:12px;color:#888;margin:0 6px 10px}
   .row{display:flex;gap:10px;flex-wrap:wrap;padding:0 6px 10px}
   .pill{
-    flex:1 1 140px;border:1px solid #eee;border-radius:999px;
+    flex:1 1 160px;border:1px solid #eee;border-radius:999px;
     padding:10px 12px;background:#fafafa;font-size:15px;
   }
   .pill b{color:#111}
   .close{
     width:100%;border:none;border-radius:12px;padding:12px;background:#f2f2f2;font-size:15px;
   }
-  .hint{font-size:12px;color:#888;margin:0 6px 10px}
 </style>
 </head>
 
@@ -86,51 +86,38 @@
     <p id="egg">彩蛋：你点到这里的时候，我其实已经在偷偷开心了。</p>
   </div>
 
-  <!-- 选平台弹层 -->
   <div id="sheetMask">
     <div id="sheet">
       <div class="sheetTitle">想用哪个App听《NOT CUTE ANYMORE》？</div>
       <div class="hint">如果在微信里不跳转：右上角“…” → 用Safari打开再点一次。</div>
       <div class="row">
-        <button class="pill" id="goQQ"><b>QQ音乐</b>（直达播放）</button>
-        <button class="pill" id="go163"><b>网易云</b>（需填分享链接）</button>
-        <button class="pill" id="goKG"><b>酷狗</b>（需填分享链接）</button>
+        <button class="pill" id="goQQ"><b>QQ音乐</b>（直达）</button>
+        <button class="pill" id="go163"><b>网易云</b>（直达）</button>
       </div>
       <button class="close" id="closeSheet">先不听</button>
     </div>
   </div>
 
 <script>
-  // === 1) 生日设置（她：1月14号） ===
+  // 生日：1月14号
   const today = new Date();
   const isBirthday = (today.getMonth()===0 && today.getDate()===14);
   const nextBirthday = new Date(today.getFullYear(),0,14);
   if (today > nextBirthday) nextBirthday.setFullYear(today.getFullYear()+1);
   const diffDays = Math.ceil((nextBirthday - today)/(1000*60*60*24));
-  const countdownEl = document.getElementById("countdown");
-  countdownEl.textContent = isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diffDays} 天`;
+  document.getElementById("countdown").textContent =
+    isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diffDays} 天`;
   if (isBirthday) document.getElementById("birthdayOnly").style.display = "block";
 
-  // === 2) 音乐跳转（要“直达播放”，请用该平台的“分享链接”替换下面两个） ===
-  // QQ音乐（已配好：NOT CUTE ANYMORE - ILLIT）
-  const QQ_URL = "https://y.qq.com/n/ryqq/songDetail/00450Vjq0OaRtE"; // 这个通常能直接唤起QQ音乐到歌曲页
-  // 网易云：把“这首歌”的分享链接粘贴到这里（示例格式：https://music.163.com/#/song?id=xxxxxxxx）
-  const NETEASE_URL = "PASTE_NETEASE_SHARE_LINK_HERE";
-  // 酷狗：把“这首歌”的分享链接粘贴到这里（示例格式：https://m.kugou.com/mixsong/xxxxxx.html 或 share/song.html?...）
-  const KUGOU_URL = "PASTE_KUGOU_SHARE_LINK_HERE";
+  // 直达链接（你给我的）
+  const QQ_URL      = "https://c6.y.qq.com/base/fcgi-bin/u?__=cZQLF5iyxaK7";
+  const NETEASE_URL = "https://163cn.tv/Yq4dimM";
 
-  function openLink(url){
-    if(!url || url.startsWith("PASTE_")){
-      alert("你还没把这个平台的“分享链接”粘进代码里～\n去对应App里点分享→复制链接→替换掉 PASTE_... 那一行即可。");
-      return;
-    }
-    window.location.href = url;
-  }
+  function openLink(url){ window.location.href = url; }
 
-  // === 3) 爱心特效 + 弹出选平台 ===
+  // 爱心特效 + 弹层
   const btn = document.getElementById("fireBtn");
   const mask = document.getElementById("sheetMask");
-  const closeSheet = document.getElementById("closeSheet");
 
   function hearts(n=12){
     for(let i=0;i<n;i++){
@@ -152,11 +139,11 @@
 
   document.getElementById("goQQ").onclick  = ()=>openLink(QQ_URL);
   document.getElementById("go163").onclick = ()=>openLink(NETEASE_URL);
-  document.getElementById("goKG").onclick  = ()=>openLink(KUGOU_URL);
-  closeSheet.onclick = ()=>mask.style.display="none";
+
+  document.getElementById("closeSheet").onclick = ()=>mask.style.display="none";
   mask.addEventListener("click",(e)=>{ if(e.target===mask) mask.style.display="none"; });
 
-  // === 4) 彩蛋：连点蛋糕 7 次 ===
+  // 彩蛋：连点蛋糕 7 次
   let taps=0, tmr=null;
   document.getElementById("cake").addEventListener("click", ()=>{
     taps++;
