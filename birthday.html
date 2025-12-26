@@ -25,18 +25,6 @@ body{
   text-align:center;
   box-shadow:0 20px 40px rgba(0,0,0,.08);
 }
-h1{
-  margin:0 0 12px;
-  font-size:26px;
-}
-p{
-  line-height:1.8;
-  margin:12px 0;
-}
-.from{
-  margin-top:14px;
-  font-weight:500;
-}
 button{
   margin-top:18px;
   padding:12px 26px;
@@ -46,21 +34,7 @@ button{
   color:#fff;
   font-size:16px;
 }
-.small{
-  font-size:14px;
-  color:#666;
-  margin-top:12px;
-}
-#birthdayOnly{
-  display:none;
-  margin-top:18px;
-}
-#easterEgg{
-  display:none;
-  margin-top:14px;
-  font-size:14px;
-  color:#888;
-}
+.small{font-size:14px;color:#666;margin-top:12px}
 .heart{
   position:fixed;
   font-size:22px;
@@ -74,6 +48,7 @@ button{
 </head>
 
 <body>
+
 <div class="card">
   <div style="font-size:42px">🎂</div>
   <h1><span style="color:#ff6b9d">张文静</span>，生日快乐</h1>
@@ -85,53 +60,63 @@ button{
     也被世界温柔以待。
   </p>
 
-  <p class="from">—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
+  <p>—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
 
   <button id="fireBtn">点我一下 🤍</button>
-
   <p id="countdown" class="small"></p>
 
-  <!-- 生日当天专属 -->
-  <div id="birthdayOnly">
-    <p>
-      🎂 今天是你的生日<br>
-      有些话平时不说，<br>
-      但今天可以。
-    </p>
+  <div id="birthdayOnly" style="display:none">
     <p><b>你真的，很值得被认真对待。</b></p>
   </div>
 
-  <!-- 隐藏彩蛋 -->
-  <p id="easterEgg">这句话，本来没打算给任何人看。</p>
+  <p id="easterEgg" style="display:none;font-size:14px;color:#888">
+    这句话，本来没打算给任何人看。
+  </p>
 </div>
 
-<audio id="music" loop>
+<!-- 🎵 音乐（iPhone 兜底版） -->
+<audio id="music" preload="auto" playsinline>
   <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
 </audio>
 
 <script>
 const btn = document.getElementById("fireBtn");
 const music = document.getElementById("music");
+
+// 生日判断
 const today = new Date();
+const isBirthday = today.getMonth() === 0 && today.getDate() === 14;
+
+// 倒计时
 const birthday = new Date(today.getFullYear(),0,14);
-const isBirthday = today.getMonth()===0 && today.getDate()===14;
-
-if(today>birthday) birthday.setFullYear(today.getFullYear()+1);
+if(today > birthday) birthday.setFullYear(today.getFullYear()+1);
 const diff = Math.ceil((birthday - today)/(1000*60*60*24));
-
 document.getElementById("countdown").innerText =
   isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
 
 if(isBirthday){
-  document.getElementById("birthdayOnly").style.display="block";
+  document.getElementById("birthdayOnly").style.display = "block";
+}
+
+// 🎵 iPhone 音频强制解锁 + 播放
+function playMusicSafe(){
+  try{
+    music.muted = false;
+    music.currentTime = 0;
+    const p = music.play();
+    if(p !== undefined){
+      p.catch(()=>{
+        // 再试一次（兜底）
+        setTimeout(()=>music.play().catch(()=>{}), 100);
+      });
+    }
+  }catch(e){}
 }
 
 btn.addEventListener("click",()=>{
-  // 🎵 强制在用户点击后播放（iPhone 允许）
-  music.currentTime = 0;
-  music.play().catch(()=>{});
+  playMusicSafe();
 
-  // 💖 爱心动画
+  // 💖 爱心
   for(let i=0;i<12;i++){
     const h=document.createElement("div");
     h.className="heart";
@@ -142,11 +127,11 @@ btn.addEventListener("click",()=>{
     setTimeout(()=>h.remove(),2000);
   }
 
-  // 🎁 生日当天彩蛋
   if(isBirthday){
-    document.getElementById("easterEgg").style.display="block";
+    document.getElementById("easterEgg").style.display = "block";
   }
 });
 </script>
+
 </body>
 </html>
