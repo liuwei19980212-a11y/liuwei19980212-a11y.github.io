@@ -25,18 +25,10 @@ body{
   text-align:center;
   box-shadow:0 20px 40px rgba(0,0,0,.08);
 }
-h1{
-  margin:0 0 12px;
-  font-size:26px;
-}
-p{
-  line-height:1.8;
-  margin:12px 0;
-}
-.from{
-  margin-top:14px;
-  font-weight:500;
-}
+h1{ margin:0 0 12px; font-size:26px; }
+p{ line-height:1.8; margin:12px 0; }
+.from{ margin-top:14px; font-weight:500; }
+
 button{
   margin-top:18px;
   padding:12px 26px;
@@ -46,21 +38,16 @@ button{
   color:#fff;
   font-size:16px;
 }
-.small{
-  font-size:14px;
-  color:#666;
-  margin-top:12px;
+.secondary{
+  background:#fff;
+  color:#ff6b9d;
+  border:1px solid rgba(255,107,157,.35);
 }
-#birthdayOnly{
-  display:none;
-  margin-top:18px;
-}
-#easterEgg{
-  display:none;
-  margin-top:14px;
-  font-size:14px;
-  color:#888;
-}
+.small{ font-size:14px; color:#666; margin-top:12px; }
+
+#birthdayOnly{ display:none; margin-top:18px; }
+#easterEgg{ display:none; margin-top:14px; font-size:14px; color:#888; }
+
 .heart{
   position:fixed;
   font-size:22px;
@@ -70,6 +57,13 @@ button{
   from{opacity:1;transform:translateY(0)}
   to{opacity:0;transform:translateY(-120px)}
 }
+
+.musicBox{
+  margin-top:16px;
+  padding-top:10px;
+  border-top:1px dashed rgba(0,0,0,.08);
+}
+.tip2{ margin-top:8px; font-size:12px; color:#999; }
 </style>
 </head>
 
@@ -88,10 +82,8 @@ button{
   <p class="from">—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
 
   <button id="fireBtn">点我一下 🤍</button>
-
   <p id="countdown" class="small"></p>
 
-  <!-- 生日当天专属 -->
   <div id="birthdayOnly">
     <p>
       🎂 今天是你的生日<br>
@@ -101,20 +93,33 @@ button{
     <p><b>你真的，很值得被认真对待。</b></p>
   </div>
 
-  <!-- 隐藏彩蛋 -->
   <p id="easterEgg">这句话，本来没打算给任何人看。</p>
+
+  <!-- 她推荐的歌：直接尝试打开 QQ音乐 App -->
+  <div class="musicBox">
+    <p class="small" style="margin-bottom:6px;">🎧 我也去听了你推荐的歌：</p>
+    <p style="margin:6px 0;"><b>NOT CUTE ANYMORE</b> · ILLIT</p>
+    <button class="secondary" id="openAppBtn">去 QQ音乐 App 听</button>
+    <div class="tip2" id="appTip" style="display:none;">
+      已复制歌名到剪贴板：打开QQ音乐后直接粘贴搜索就行～
+    </div>
+    <div class="tip2" id="fallbackTip" style="display:none;">
+      如果没能唤起 App，会自动打开网页搜索（微信里建议用 Safari 打开再试）。
+    </div>
+  </div>
 </div>
 
-<audio id="music" loop>
+<audio id="music" loop playsinline preload="auto">
   <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
 </audio>
 
 <script>
 const btn = document.getElementById("fireBtn");
 const music = document.getElementById("music");
+
 const today = new Date();
 const birthday = new Date(today.getFullYear(),0,14);
-const isBirthday = today.getMonth()===0 && today.getDate()===14;
+const isBirthday = (today.getMonth()===0 && today.getDate()===14);
 
 if(today>birthday) birthday.setFullYear(today.getFullYear()+1);
 const diff = Math.ceil((birthday - today)/(1000*60*60*24));
@@ -127,11 +132,11 @@ if(isBirthday){
 }
 
 btn.addEventListener("click",()=>{
-  music.play();
+  music.play().catch(()=>{});
   for(let i=0;i<10;i++){
     const h=document.createElement("div");
     h.className="heart";
-    h.innerText="💖";
+    h.innerText = (Math.random()>0.6) ? "🎆" : "💖";
     h.style.left=Math.random()*100+"vw";
     h.style.bottom="0";
     document.body.appendChild(h);
@@ -140,6 +145,51 @@ btn.addEventListener("click",()=>{
   if(isBirthday){
     document.getElementById("easterEgg").style.display="block";
   }
+});
+
+// ====== 直接唤起 App（QQ音乐） ======
+const SONG_NAME = "NOT CUTE ANYMORE";
+const ARTIST = "ILLIT";
+const QUERY = `${SONG_NAME} ${ARTIST}`;
+
+const openAppBtn = document.getElementById("openAppBtn");
+const appTip = document.getElementById("appTip");
+const fallbackTip = document.getElementById("fallbackTip");
+
+// 网页兜底（没装App/被拦截时）
+const QQ_WEB_SEARCH = `https://y.qq.com/n/ryqq/search?w=${encodeURIComponent(QUERY)}`;
+
+// 只用“打开 App”最稳的方案：先复制，再尝试唤起
+async function copyText(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(e){
+    const ta=document.createElement("textarea");
+    ta.value=text;
+    document.body.appendChild(ta);
+    ta.select();
+    let ok=false;
+    try{ ok=document.execCommand("copy"); }catch(_){}
+    ta.remove();
+    return ok;
+  }
+}
+
+openAppBtn.addEventListener("click", async ()=>{
+  appTip.style.display="none";
+  fallbackTip.style.display="none";
+
+  const ok = await copyText(QUERY);
+  if(ok) appTip.style.display="block";
+
+  // 尝试唤起 QQ音乐 App（若安装会弹“打开QQ音乐”）
+  // 注意：微信内置浏览器可能拦截
+  location.href = "qqmusic://";
+
+  // 兜底：如果没唤起，稍后打开网页搜索
+  fallbackTip.style.display="block";
+  setTimeout(()=>{ location.href = QQ_WEB_SEARCH; }, 900);
 });
 </script>
 </body>
