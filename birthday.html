@@ -15,7 +15,7 @@
     justify-content:center;
     align-items:flex-start;
 
-    /* ✅ 透明框往上移一点点：减少顶部padding */
+    /* 透明框位置（你现在这个更靠近下巴） */
     padding:clamp(250px, 36vh, 420px) 0 70px;
 
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
@@ -75,6 +75,34 @@
   #birthdayOnly{ display:none; margin-top:16px; }
   #easterEgg{ display:none; margin-top:12px; font-size:14px; color:rgba(51,51,51,.6); }
 
+  /* ✅ 新彩蛋（toast） */
+  #toastEgg{
+    position:fixed;
+    left:50%;
+    top:16px;
+    transform:translateX(-50%) translateY(-10px);
+    opacity:0;
+    pointer-events:none;
+    z-index:30;
+    max-width:min(560px,92vw);
+    padding:12px 14px;
+    border-radius:14px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border:1px solid rgba(255,255,255,.45);
+    box-shadow:0 16px 50px rgba(0,0,0,.18);
+    font-size:14px;
+    line-height:1.5;
+    color:rgba(0,0,0,.78);
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  #toastEgg.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  /* ✅ 绽放特效：2秒持续 */
   .fx{
     position:fixed;
     left:0; top:0;
@@ -140,6 +168,13 @@
     border-top:10px solid rgba(0,0,0,.06);
     color:#666; font-weight:700;
   }
+
+  /* 小提示：蛋糕可点 */
+  #cake{
+    display:inline-block;
+    cursor:pointer;
+    user-select:none;
+  }
 </style>
 </head>
 
@@ -174,6 +209,9 @@
     <p id="easterEgg">（小声）如果你愿意，今年我想把“惦记”做得更具体一点。</p>
   </div>
 
+  <!-- ✅ 新彩蛋提示（连点蛋糕触发） -->
+  <div id="toastEgg">🎁 彩蛋：你获得一张「小确幸兑换券」——下次见面，你挑口味，我负责买单。</div>
+
   <div class="sheetMask" id="sheetMask">
     <div class="sheet">
       <div class="sheetHead">🎧 我也去听了你推荐的歌</div>
@@ -191,6 +229,7 @@
   const sheetMask = document.getElementById("sheetMask");
   const goQQ = document.getElementById("goQQ");
   const noThanks = document.getElementById("noThanks");
+  const toastEgg = document.getElementById("toastEgg");
 
   const qqUrl = "https://c6.y.qq.com/base/fcgi-bin/u?__=cZQLF5iyxaK7";
 
@@ -245,7 +284,6 @@
     const originX = c.left + c.width/2;
     const originY = c.top + c.height/2;
 
-    /* ✅ 半径稍微放大：更铺开但仍围着蛋糕 */
     burst(originX, originY, 34, ["🩷","💗","💖","💞","💕"], 55, 155, 18, 30);
     burst(originX, originY, 26, ["🎆","🎇"],              50, 140, 18, 28);
     burst(originX, originY, 38, ["✨","✦","✧","✨"],      60, 175, 14, 22);
@@ -254,13 +292,40 @@
   function spawnFX2s(){
     const start = Date.now();
     spawnOneWave();
-
     const interval = 130;
     const t = setInterval(()=>{
       spawnOneWave();
       if(Date.now() - start >= 2000) clearInterval(t);
     }, interval);
   }
+
+  function showToast(){
+    toastEgg.classList.add("show");
+    setTimeout(()=> toastEgg.classList.remove("show"), 2600);
+  }
+
+  /* ✅ 彩蛋：连点蛋糕 5 下 */
+  let tapCount = 0;
+  let tapTimer = null;
+  cake.addEventListener("click", ()=>{
+    tapCount++;
+    if(!tapTimer){
+      tapTimer = setTimeout(()=>{
+        tapCount = 0;
+        tapTimer = null;
+      }, 900);
+    }
+    // 第5下触发
+    if(tapCount >= 5){
+      tapCount = 0;
+      clearTimeout(tapTimer);
+      tapTimer = null;
+
+      // 轻量烟花围绕蛋糕
+      spawnFX2s();
+      showToast();
+    }
+  });
 
   btn.addEventListener("click", ()=>{
     clicks++;
