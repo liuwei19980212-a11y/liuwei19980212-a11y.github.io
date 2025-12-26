@@ -14,7 +14,10 @@
     display:flex;
     justify-content:center;
     align-items:flex-start;
-    padding:clamp(290px, 40vh, 460px) 0 70px;
+
+    /* ✅ 透明框往上移一点点：减少顶部padding */
+    padding:clamp(250px, 36vh, 420px) 0 70px;
+
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
     color:var(--text);
     overflow:hidden;
@@ -218,12 +221,10 @@
       let dx = Math.cos(angle) * r;
       let dy = Math.sin(angle) * r;
 
-      // 轻微上扬，但不冲顶
       dy -= 28;
       if (dy < -200) dy = -200;
       if (originY + dy < 140) dy = 140 - originY;
 
-      // 让起点更贴近蛋糕中心（抖动更小）
       const jitterX = (Math.random()*10 - 5);
       const jitterY = (Math.random()*10 - 5);
       const rot = (Math.random()*50 - 25) + "deg";
@@ -240,18 +241,16 @@
   }
 
   function spawnOneWave(){
-    // ✅ 起点：蛋糕中心
     const c = cake.getBoundingClientRect();
     const originX = c.left + c.width/2;
     const originY = c.top + c.height/2;
 
-    // ✅ 收紧半径：更贴近蛋糕周围“冒出来”
-    burst(originX, originY, 34, ["🩷","💗","💖","💞","💕"], 40, 125, 18, 30);
-    burst(originX, originY, 26, ["🎆","🎇"],              35, 110, 18, 28);
-    burst(originX, originY, 38, ["✨","✦","✧","✨"],      45, 145, 14, 22);
+    /* ✅ 半径稍微放大：更铺开但仍围着蛋糕 */
+    burst(originX, originY, 34, ["🩷","💗","💖","💞","💕"], 55, 155, 18, 30);
+    burst(originX, originY, 26, ["🎆","🎇"],              50, 140, 18, 28);
+    burst(originX, originY, 38, ["✨","✦","✧","✨"],      60, 175, 14, 22);
   }
 
-  // ✅ 2 秒持续绽放（多波次、但都围着蛋糕）
   function spawnFX2s(){
     const start = Date.now();
     spawnOneWave();
