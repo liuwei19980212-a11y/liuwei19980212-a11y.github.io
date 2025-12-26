@@ -1,196 +1,172 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>生日快乐 🎂</title>
-
 <style>
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(135deg,#ffe6ee,#f7f2ff);
-  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
-  color:#333;
-  overflow:hidden;
-}
-.card{
-  width:min(560px,90vw);
-  background:#ffffffee;
-  border-radius:24px;
-  padding:28px 24px;
-  text-align:center;
-  box-shadow:0 20px 40px rgba(0,0,0,.08);
-}
-h1{ margin:0 0 12px; font-size:26px; }
-p{ line-height:1.8; margin:12px 0; }
-.from{ margin-top:14px; font-weight:500; }
+  :root{--pink:#ff6b9d;--bg1:#ffe6ee;--bg2:#f7f2ff}
+  body{
+    margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2));
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
+    color:#333;overflow:hidden;
+  }
+  .card{
+    width:min(560px,90vw);background:#ffffffee;border-radius:24px;padding:26px 22px;
+    text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.08)
+  }
+  .cake{font-size:44px;user-select:none}
+  h1{margin:10px 0 10px;font-size:26px}
+  p{line-height:1.85;margin:10px 0}
+  .from{margin-top:14px;font-weight:600}
+  .btn{
+    margin-top:16px;padding:12px 24px;border:none;border-radius:999px;
+    background:var(--pink);color:#fff;font-size:16px
+  }
+  .sub{font-size:14px;color:#666;margin-top:10px}
+  #birthdayOnly{display:none;margin-top:14px}
+  #egg{display:none;margin-top:10px;font-size:14px;color:#777}
+  .heart{
+    position:fixed;font-size:22px;left:50vw;bottom:10px;pointer-events:none;
+    animation:float 1.9s ease-out forwards;
+    filter:drop-shadow(0 8px 14px rgba(0,0,0,.12));
+  }
+  @keyframes float{
+    from{opacity:1;transform:translate(-50%,0) scale(1)}
+    to{opacity:0;transform:translate(calc(-50% + var(--dx)), -140px) scale(1.15)}
+  }
 
-button{
-  margin-top:18px;
-  padding:12px 26px;
-  border:none;
-  border-radius:999px;
-  background:#ff6b9d;
-  color:#fff;
-  font-size:16px;
-}
-.secondary{
-  background:#fff;
-  color:#ff6b9d;
-  border:1px solid rgba(255,107,157,.35);
-}
-.small{ font-size:14px; color:#666; margin-top:12px; }
-
-#birthdayOnly{ display:none; margin-top:18px; }
-#easterEgg{ display:none; margin-top:14px; font-size:14px; color:#888; }
-
-.heart{
-  position:fixed;
-  font-size:22px;
-  animation:float 2s ease-out forwards;
-}
-@keyframes float{
-  from{opacity:1;transform:translateY(0)}
-  to{opacity:0;transform:translateY(-120px)}
-}
-
-.musicBox{
-  margin-top:16px;
-  padding-top:10px;
-  border-top:1px dashed rgba(0,0,0,.08);
-}
-.tip2{ margin-top:8px; font-size:12px; color:#999; }
+  /* 选择平台弹层 */
+  #sheetMask{
+    position:fixed;inset:0;background:rgba(0,0,0,.25);
+    display:none;align-items:flex-end;justify-content:center;
+  }
+  #sheet{
+    width:min(560px,96vw);background:#fff;border-radius:18px 18px 0 0;
+    padding:14px 14px 10px;box-shadow:0 -18px 40px rgba(0,0,0,.18);
+  }
+  .sheetTitle{font-weight:700;margin:6px 6px 10px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;padding:0 6px 10px}
+  .pill{
+    flex:1 1 140px;border:1px solid #eee;border-radius:999px;
+    padding:10px 12px;background:#fafafa;font-size:15px;
+  }
+  .pill b{color:#111}
+  .close{
+    width:100%;border:none;border-radius:12px;padding:12px;background:#f2f2f2;font-size:15px;
+  }
+  .hint{font-size:12px;color:#888;margin:0 6px 10px}
 </style>
 </head>
 
 <body>
-<div class="card">
-  <div style="font-size:42px">🎂</div>
-  <h1><span style="color:#ff6b9d">张文静</span>，生日快乐</h1>
+  <div class="card">
+    <div class="cake" id="cake">🎂</div>
 
-  <p>
-    愿你新的一岁，<br>
-    有热爱，有期待，<br>
-    有人惦记，<br>
-    也被世界温柔以待。
-  </p>
+    <h1><span style="color:var(--pink)">张文静</span>，生日快乐</h1>
 
-  <p class="from">—— 来自 <span style="color:#ff6b9d">刘伟</span></p>
-
-  <button id="fireBtn">点我一下 🤍</button>
-  <p id="countdown" class="small"></p>
-
-  <div id="birthdayOnly">
     <p>
-      🎂 今天是你的生日<br>
-      有些话平时不说，<br>
-      但今天可以。
+      愿你新的一岁，<br>
+      眼里有光，心里有糖，<br>
+      有人惦记，<br>
+      也被世界温柔以待。
     </p>
-    <p><b>你真的，很值得被认真对待。</b></p>
+
+    <p class="from">—— 来自 <span style="color:var(--pink)">刘伟</span></p>
+
+    <button class="btn" id="fireBtn">点我一下 🤍</button>
+    <p class="sub" id="countdown"></p>
+
+    <div id="birthdayOnly">
+      <p>🎈 今天是你的生日。</p>
+      <p><b>我把“偏爱”写进祝福里，也想把你写进未来里。</b></p>
+    </div>
+
+    <p id="egg">彩蛋：你点到这里的时候，我其实已经在偷偷开心了。</p>
   </div>
 
-  <p id="easterEgg">这句话，本来没打算给任何人看。</p>
-
-  <!-- 她推荐的歌：直接尝试打开 QQ音乐 App -->
-  <div class="musicBox">
-    <p class="small" style="margin-bottom:6px;">🎧 我也去听了你推荐的歌：</p>
-    <p style="margin:6px 0;"><b>NOT CUTE ANYMORE</b> · ILLIT</p>
-    <button class="secondary" id="openAppBtn">去 QQ音乐 App 听</button>
-    <div class="tip2" id="appTip" style="display:none;">
-      已复制歌名到剪贴板：打开QQ音乐后直接粘贴搜索就行～
-    </div>
-    <div class="tip2" id="fallbackTip" style="display:none;">
-      如果没能唤起 App，会自动打开网页搜索（微信里建议用 Safari 打开再试）。
+  <!-- 选平台弹层 -->
+  <div id="sheetMask">
+    <div id="sheet">
+      <div class="sheetTitle">想用哪个App听《NOT CUTE ANYMORE》？</div>
+      <div class="hint">如果在微信里不跳转：右上角“…” → 用Safari打开再点一次。</div>
+      <div class="row">
+        <button class="pill" id="goQQ"><b>QQ音乐</b>（直达播放）</button>
+        <button class="pill" id="go163"><b>网易云</b>（需填分享链接）</button>
+        <button class="pill" id="goKG"><b>酷狗</b>（需填分享链接）</button>
+      </div>
+      <button class="close" id="closeSheet">先不听</button>
     </div>
   </div>
-</div>
-
-<audio id="music" loop playsinline preload="auto">
-  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c2b2b89f7.mp3" type="audio/mpeg">
-</audio>
 
 <script>
-const btn = document.getElementById("fireBtn");
-const music = document.getElementById("music");
+  // === 1) 生日设置（她：1月14号） ===
+  const today = new Date();
+  const isBirthday = (today.getMonth()===0 && today.getDate()===14);
+  const nextBirthday = new Date(today.getFullYear(),0,14);
+  if (today > nextBirthday) nextBirthday.setFullYear(today.getFullYear()+1);
+  const diffDays = Math.ceil((nextBirthday - today)/(1000*60*60*24));
+  const countdownEl = document.getElementById("countdown");
+  countdownEl.textContent = isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diffDays} 天`;
+  if (isBirthday) document.getElementById("birthdayOnly").style.display = "block";
 
-const today = new Date();
-const birthday = new Date(today.getFullYear(),0,14);
-const isBirthday = (today.getMonth()===0 && today.getDate()===14);
+  // === 2) 音乐跳转（要“直达播放”，请用该平台的“分享链接”替换下面两个） ===
+  // QQ音乐（已配好：NOT CUTE ANYMORE - ILLIT）
+  const QQ_URL = "https://y.qq.com/n/ryqq/songDetail/00450Vjq0OaRtE"; // 这个通常能直接唤起QQ音乐到歌曲页
+  // 网易云：把“这首歌”的分享链接粘贴到这里（示例格式：https://music.163.com/#/song?id=xxxxxxxx）
+  const NETEASE_URL = "PASTE_NETEASE_SHARE_LINK_HERE";
+  // 酷狗：把“这首歌”的分享链接粘贴到这里（示例格式：https://m.kugou.com/mixsong/xxxxxx.html 或 share/song.html?...）
+  const KUGOU_URL = "PASTE_KUGOU_SHARE_LINK_HERE";
 
-if(today>birthday) birthday.setFullYear(today.getFullYear()+1);
-const diff = Math.ceil((birthday - today)/(1000*60*60*24));
-
-document.getElementById("countdown").innerText =
-  isBirthday ? "🎈 今天是你的生日" : `🎈 距离生日还有 ${diff} 天`;
-
-if(isBirthday){
-  document.getElementById("birthdayOnly").style.display="block";
-}
-
-btn.addEventListener("click",()=>{
-  music.play().catch(()=>{});
-  for(let i=0;i<10;i++){
-    const h=document.createElement("div");
-    h.className="heart";
-    h.innerText = (Math.random()>0.6) ? "🎆" : "💖";
-    h.style.left=Math.random()*100+"vw";
-    h.style.bottom="0";
-    document.body.appendChild(h);
-    setTimeout(()=>h.remove(),2000);
+  function openLink(url){
+    if(!url || url.startsWith("PASTE_")){
+      alert("你还没把这个平台的“分享链接”粘进代码里～\n去对应App里点分享→复制链接→替换掉 PASTE_... 那一行即可。");
+      return;
+    }
+    window.location.href = url;
   }
-  if(isBirthday){
-    document.getElementById("easterEgg").style.display="block";
+
+  // === 3) 爱心特效 + 弹出选平台 ===
+  const btn = document.getElementById("fireBtn");
+  const mask = document.getElementById("sheetMask");
+  const closeSheet = document.getElementById("closeSheet");
+
+  function hearts(n=12){
+    for(let i=0;i<n;i++){
+      const h=document.createElement("div");
+      h.className="heart";
+      h.textContent = Math.random()>.35 ? "💖" : "🎆";
+      h.style.left = (Math.random()*100) + "vw";
+      h.style.setProperty("--dx", (Math.random()*120 - 60) + "px");
+      document.body.appendChild(h);
+      setTimeout(()=>h.remove(), 1900);
+    }
   }
-});
 
-// ====== 直接唤起 App（QQ音乐） ======
-const SONG_NAME = "NOT CUTE ANYMORE";
-const ARTIST = "ILLIT";
-const QUERY = `${SONG_NAME} ${ARTIST}`;
+  btn.addEventListener("click", ()=>{
+    hearts(14);
+    if(isBirthday) document.getElementById("egg").style.display="block";
+    mask.style.display="flex";
+  });
 
-const openAppBtn = document.getElementById("openAppBtn");
-const appTip = document.getElementById("appTip");
-const fallbackTip = document.getElementById("fallbackTip");
+  document.getElementById("goQQ").onclick  = ()=>openLink(QQ_URL);
+  document.getElementById("go163").onclick = ()=>openLink(NETEASE_URL);
+  document.getElementById("goKG").onclick  = ()=>openLink(KUGOU_URL);
+  closeSheet.onclick = ()=>mask.style.display="none";
+  mask.addEventListener("click",(e)=>{ if(e.target===mask) mask.style.display="none"; });
 
-// 网页兜底（没装App/被拦截时）
-const QQ_WEB_SEARCH = `https://y.qq.com/n/ryqq/search?w=${encodeURIComponent(QUERY)}`;
-
-// 只用“打开 App”最稳的方案：先复制，再尝试唤起
-async function copyText(text){
-  try{
-    await navigator.clipboard.writeText(text);
-    return true;
-  }catch(e){
-    const ta=document.createElement("textarea");
-    ta.value=text;
-    document.body.appendChild(ta);
-    ta.select();
-    let ok=false;
-    try{ ok=document.execCommand("copy"); }catch(_){}
-    ta.remove();
-    return ok;
-  }
-}
-
-openAppBtn.addEventListener("click", async ()=>{
-  appTip.style.display="none";
-  fallbackTip.style.display="none";
-
-  const ok = await copyText(QUERY);
-  if(ok) appTip.style.display="block";
-
-  // 尝试唤起 QQ音乐 App（若安装会弹“打开QQ音乐”）
-  // 注意：微信内置浏览器可能拦截
-  location.href = "qqmusic://";
-
-  // 兜底：如果没唤起，稍后打开网页搜索
-  fallbackTip.style.display="block";
-  setTimeout(()=>{ location.href = QQ_WEB_SEARCH; }, 900);
-});
+  // === 4) 彩蛋：连点蛋糕 7 次 ===
+  let taps=0, tmr=null;
+  document.getElementById("cake").addEventListener("click", ()=>{
+    taps++;
+    clearTimeout(tmr);
+    tmr=setTimeout(()=>taps=0, 800);
+    if(taps>=7){
+      taps=0;
+      alert("🫶 彩蛋解锁：\n“我想把对你的喜欢，藏在每一个不经意的祝福里。”");
+    }
+  });
 </script>
 </body>
 </html>
