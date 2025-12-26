@@ -14,15 +14,19 @@
     margin:0;
     min-height:100vh;
     display:flex;
-    align-items:center;
     justify-content:center;
+
+    /* ✅ 往下移：不再垂直居中，改为从上往下排 + 顶部留白 */
+    align-items:flex-start;
+    padding:clamp(110px, 16vh, 190px) 0 70px;
+
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
     color:var(--text);
     overflow:hidden;
     background:#f7f2ff;
   }
 
-  /* 背景图（仓库里放 bg.jpg.JPG） */
+  /* 背景图（仓库里放 bg.jpg.JPG，大小写要一模一样） */
   body::before{
     content:"";
     position:fixed;
@@ -32,7 +36,7 @@
     filter: brightness(.92) saturate(1.05);
     z-index:-2;
   }
-  /* 柔和粉紫罩层，避免太花 */
+  /* 柔和粉紫罩层 */
   body::after{
     content:"";
     position:fixed;
@@ -143,9 +147,7 @@
   .sheetBtnPrimary{
     border-top:1px solid rgba(0,0,0,.06);
   }
-  .sheetBtnPrimary span{
-    color:#111;
-  }
+  .sheetBtnPrimary span{ color:#111; }
   .sheetBtnPrimary small{
     display:block;
     margin-top:6px;
@@ -210,7 +212,7 @@
   const goQQ = document.getElementById("goQQ");
   const noThanks = document.getElementById("noThanks");
 
-  // 你的 QQ 音乐分享链接（你发我的这个）
+  // QQ 音乐分享链接
   const qqUrl = "https://c6.y.qq.com/base/fcgi-bin/u?__=cZQLF5iyxaK7";
 
   // 生日：1月14日
@@ -220,7 +222,6 @@
 
   let birthday = new Date(today.getFullYear(), 0, 14);
   const isBirthday = (today.getMonth()===0 && today.getDate()===14);
-
   if (today > birthday) birthday = new Date(today.getFullYear()+1, 0, 14);
 
   const diffDays = Math.ceil((birthday - today) / 86400000);
@@ -232,11 +233,10 @@
   let clicks = 0;
 
   function spawnFX(){
-    // 多一点：心 + 烟花 + 闪光
     const icons = ["💗","🩷","💖","✨","🎆","🎇"];
-    const n = 42; // 数量（你要更炸一点就加大）
+    const n = 42;
     const startY = window.innerHeight - 80;
-    const riseTo = Math.max(180, window.innerHeight * 0.30); // 不飘到顶（停在 30% 高度附近）
+    const riseTo = Math.max(180, window.innerHeight * 0.30);
 
     for(let i=0;i<n;i++){
       const el = document.createElement("div");
@@ -246,13 +246,10 @@
       const x = Math.random() * window.innerWidth;
       const x2 = x + (Math.random()*160 - 80);
 
-      // 从底部附近起飞，往上飘到 riseTo 左右（不顶到头）
       el.style.setProperty("--x", x + "px");
       el.style.setProperty("--x2", x2 + "px");
       el.style.setProperty("--y0", startY + (Math.random()*40) + "px");
       el.style.setProperty("--y1", riseTo + (Math.random()*40) + "px");
-
-      // 大小随机一点
       el.style.fontSize = (18 + Math.random()*14) + "px";
 
       document.body.appendChild(el);
@@ -264,17 +261,14 @@
     clicks++;
     spawnFX();
 
-    // 生日当天 or 连点几次给彩蛋
     if (isBirthday || clicks >= 3){
       document.getElementById("easterEgg").style.display = "block";
     }
 
-    // 弹出听歌选择
     sheetMask.style.display = "flex";
   });
 
   goQQ.addEventListener("click", ()=>{
-    // 用新窗口/新标签打开，更容易唤起 App
     window.open(qqUrl, "_blank");
     sheetMask.style.display = "none";
   });
@@ -283,7 +277,6 @@
     sheetMask.style.display = "none";
   });
 
-  // 点遮罩也能关闭
   sheetMask.addEventListener("click", (e)=>{
     if(e.target === sheetMask) sheetMask.style.display = "none";
   });
