@@ -127,8 +127,12 @@ if(isBirthday){
 }
 
 btn.addEventListener("click",()=>{
-  music.play();
-  for(let i=0;i<10;i++){
+  // 🎵 强制在用户点击后播放（iPhone 允许）
+  music.currentTime = 0;
+  music.play().catch(()=>{});
+
+  // 💖 爱心动画
+  for(let i=0;i<12;i++){
     const h=document.createElement("div");
     h.className="heart";
     h.innerText="💖";
@@ -137,6 +141,8 @@ btn.addEventListener("click",()=>{
     document.body.appendChild(h);
     setTimeout(()=>h.remove(),2000);
   }
+
+  // 🎁 生日当天彩蛋
   if(isBirthday){
     document.getElementById("easterEgg").style.display="block";
   }
