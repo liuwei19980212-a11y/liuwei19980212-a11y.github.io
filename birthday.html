@@ -5,17 +5,58 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>生日快乐 🎂</title>
 <style>
-  :root{--pink:#ff6b9d;--bg1:#ffe6ee;--bg2:#f7f2ff}
+  :root{
+    --pink:#ff6b9d;
+    --bg-url:url("bg.jpg"); /* ✅ 把她的照片上传到仓库同目录，命名 bg.jpg */
+  }
+
   body{
-    margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(135deg,var(--bg1),var(--bg2));
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
-    color:#333;overflow:hidden;
+    color:#333;
+    overflow:hidden;
+    background:#000; /* 兜底色 */
   }
+
+  /* ✅ 照片做背景（虚化+微微变暗），不会喧宾夺主 */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:-30px;
+    background-image: var(--bg-url);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(18px) saturate(1.05);
+    transform: scale(1.08);
+    opacity: .9;
+    z-index:-2;
+  }
+
+  /* ✅ 叠一层粉色氛围 */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    background: linear-gradient(135deg, rgba(255,230,238,.75), rgba(247,242,255,.75));
+    z-index:-1;
+  }
+
   .card{
-    width:min(560px,90vw);background:#ffffffee;border-radius:24px;padding:26px 22px;
-    text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.08)
+    width:min(560px,90vw);
+    background:rgba(255,255,255,.86);
+    border-radius:24px;
+    padding:26px 22px;
+    text-align:center;
+    box-shadow:0 20px 40px rgba(0,0,0,.14);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
+
   .cake{font-size:44px;user-select:none}
   h1{margin:10px 0 10px;font-size:26px}
   p{line-height:1.85;margin:10px 0}
@@ -40,7 +81,6 @@
   }
   @keyframes float{
     from{opacity:1;transform:translate(-50%, 0) scale(var(--s)) rotate(0deg)}
-    /* 往上飘更多，但不会到顶（大约停在屏幕上方 70% 附近） */
     to{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-300px - var(--dy))) scale(calc(var(--s) + .25)) rotate(var(--r))}
   }
 
@@ -122,29 +162,24 @@
   const btn = document.getElementById("fireBtn");
   const mask = document.getElementById("sheetMask");
 
-  // 让特效“更往上飘但不顶到天花板”：
-  // 1) 起点从更低一些开始（底部 0~8vh）
-  // 2) dy 控制额外上飘幅度（0~220px）
   function burst(n=40){
     const emojis = ["🩷","🩷","💖","🎆","🎆"];
     for(let i=0;i<n;i++){
       const e = document.createElement("div");
       e.className = "fx";
       e.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-
       e.style.left = (Math.random()*100) + "vw";
-      e.style.bottom = (Math.random()*8) + "vh"; // 起点更靠下
+      e.style.bottom = (Math.random()*8) + "vh";
 
       const s = (Math.random()*0.55 + 0.85).toFixed(2);
       const dx = (Math.random()*260 - 130).toFixed(0) + "px";
-      const dy = (Math.random()*220).toFixed(0) + "px"; // 上飘更高，但仍会在中上部消失
+      const dy = (Math.random()*220).toFixed(0) + "px";
       const r  = (Math.random()*220 - 110).toFixed(0) + "deg";
 
       e.style.setProperty("--s", s);
       e.style.setProperty("--dx", dx);
       e.style.setProperty("--dy", dy);
       e.style.setProperty("--r",  r);
-
       e.style.animationDelay = (Math.random()*0.35).toFixed(2) + "s";
 
       document.body.appendChild(e);
@@ -153,10 +188,7 @@
   }
 
   btn.addEventListener("click", ()=>{
-    burst(42);
-    setTimeout(()=>burst(34), 160);
-    setTimeout(()=>burst(28), 320);
-
+    burst(42); setTimeout(()=>burst(34), 160); setTimeout(()=>burst(28), 320);
     if(isBirthday) document.getElementById("egg").style.display="block";
     mask.style.display="flex";
   });
@@ -168,9 +200,7 @@
   // 彩蛋：连点蛋糕 7 次
   let taps=0, tmr=null;
   document.getElementById("cake").addEventListener("click", ()=>{
-    taps++;
-    clearTimeout(tmr);
-    tmr=setTimeout(()=>taps=0, 800);
+    taps++; clearTimeout(tmr); tmr=setTimeout(()=>taps=0, 800);
     if(taps>=7){
       taps=0;
       burst(55);
